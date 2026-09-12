@@ -21,10 +21,105 @@ max-width:820px;
 margin:20px auto;
 }
 
+.topBar{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:15px;
+}
+
 .logo{
 color:#d8ad55;
 font-size:40px;
 font-weight:900;
+}
+
+.notificationWrap{
+position:relative;
+}
+
+.bellBtn{
+position:relative;
+background:#1c1c1c;
+border:1px solid #444;
+color:#fff;
+width:52px;
+height:52px;
+border-radius:50%;
+font-size:25px;
+padding:0;
+}
+
+.badge{
+position:absolute;
+top:-5px;
+right:-5px;
+background:#e11d48;
+color:#fff;
+min-width:23px;
+height:23px;
+padding:0 6px;
+border-radius:20px;
+font-size:13px;
+font-weight:900;
+display:none;
+align-items:center;
+justify-content:center;
+border:2px solid #0b0b0b;
+}
+
+.notificationPanel{
+display:none;
+background:#151515;
+border:1px solid #444;
+border-radius:16px;
+padding:15px;
+margin-top:12px;
+}
+
+.notificationHeader{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:10px;
+margin-bottom:12px;
+}
+
+.notificationHeader h3{
+margin:0;
+}
+
+.notification{
+background:#222;
+border:1px solid #333;
+border-radius:12px;
+padding:13px;
+margin:8px 0;
+}
+
+.notification.unread{
+border-color:#d8ad55;
+}
+
+.notificationText{
+line-height:1.5;
+}
+
+.notificationDate{
+color:#999;
+font-size:12px;
+margin-top:7px;
+}
+
+.notificationActions{
+display:flex;
+gap:8px;
+margin-top:10px;
+}
+
+.notificationActions button{
+flex:1;
+padding:9px;
 }
 
 h1{
@@ -190,6 +285,7 @@ margin-left:7px;
 }
 
 @media(max-width:620px){
+
 .grid{
 grid-template-columns:repeat(3,1fr);
 }
@@ -205,6 +301,11 @@ flex:1;
 .serviceButtons{
 flex-direction:column;
 }
+
+.logo{
+font-size:36px;
+}
+
 }
 </style>
 </head>
@@ -213,8 +314,45 @@ flex-direction:column;
 
 <div class="wrap">
 
+<div class="topBar">
+
 <div class="logo">TERMINO</div>
+
+<div class="notificationWrap">
+
+<button
+class="bellBtn"
+onclick="toggleNotifications()">
+🔔
+<span id="notificationBadge" class="badge">0</span>
+</button>
+
+</div>
+
+</div>
+
+<div id="notificationPanel" class="notificationPanel">
+
+<div class="notificationHeader">
+
+<h3>🔔 Obavijesti</h3>
+
+<button
+class="red"
+onclick="deleteAllNotifications()">
+OBRIŠI SVE
+</button>
+
+</div>
+
+<div id="notifications">
+<div class="muted">Učitavanje...</div>
+</div>
+
+</div>
+
 <h1>Moj salon</h1>
+
 
 <div class="card">
 
@@ -267,7 +405,6 @@ Crveno = nedostupan.
 <select id="serviceCategory">
 
 <option value="">-- Odaberi --</option>
-
 <option>Muški frizer</option>
 <option>Ženski frizer</option>
 <option>Barber / Brada</option>
@@ -421,6 +558,344 @@ location.href =
 }
 
 
+/* =========================
+   NOTIFIKACIJE
+========================= */
+
+async function loadNotifications(){
+
+if(!currentSalon)
+return;
+
+const {
+data,
+error
+} =
+await db
+.from("notifications")
+.select(`
+id,
+is_read,
+created_at,
+booking_id,
+bookings(
+customer_name,
+booking_date,
+booking_time,
+phone,
+services(
+name
+)
+)
+`)
+.eq("salon_id",currentSalon.id)
+.order("created_at",{
+ascending:false
+});
+
+if(error){
+
+console.error(error);
+
+$("notifications").innerHTML =
+'<div class="muted">Ne mogu učitati obavijesti.</div>';
+
+return;
+
+}
+
+const notifications =
+data || [];
+
+const unread =
+notifications.filter(
+n => n.is_read !== true
+).length;
+
+const badge =
+$("notificationBadge");
+
+if(unread > 0){
+
+badge.textContent =
+unread > 99 ? "99+" : unread;
+
+badge.style.display =
+"flex";
+
+}
+else{
+
+badge.style.display =
+"none";
+
+}
+
+
+if(!notifications.length){
+
+$("notifications").innerHTML =
+'<div class="muted">Nema novih obavijesti.</div>';
+
+return;
+
+}
+
+$("notifications").innerHTML =
+notifications.map(n=>{
+
+const b =
+n.bookings || {};
+
+const service =
+b.services || {};
+
+const time =
+String(
+b.booking_time || ""
+).slice(0,5);
+
+return `
+<div class="notification ${n.is_read ? "" : "unread"}">
+
+<div class="notificationText">
+
+<strong>
+${n.is_read ? "Rezervacija" : "🆕 Nova rezervacija"}
+</strong>
+
+<br><br>
+
+👤 ${escapeHtml(b.customer_name || "Klijent")}
+
+<br>
+
+✂️ ${escapeHtml(service.name || "Usluga")}
+
+<br>
+
+📅 ${escapeHtml(b.booking_date || "")}
+${time ? " u " + escapeHtml(time) : ""}
+
+${b.phone
+?
+`<br>📞 ${escapeHtml(b.phone)}`
+:
+""
+}
+
+</div>
+
+<div class="notificationDate">
+Primljeno:
+${formatNotificationDate(n.created_at)}
+</div>
+
+<div class="notificationActions">
+
+${!n.is_read
+?
+`
+<button
+class="blue"
+onclick="readNotification('${n.id}')">
+PROČITANO
+</button>
+`
+:
+""
+}
+
+<button
+class="red"
+onclick="deleteNotification('${n.id}')">
+OBRIŠI
+</button>
+
+</div>
+
+</div>
+`;
+
+}).join("");
+
+}
+
+
+function formatNotificationDate(value){
+
+if(!value)
+return "";
+
+const d =
+new Date(value);
+
+return d.toLocaleString(
+"hr-HR",
+{
+day:"2-digit",
+month:"2-digit",
+year:"numeric",
+hour:"2-digit",
+minute:"2-digit"
+}
+);
+
+}
+
+
+async function toggleNotifications(){
+
+const panel =
+$("notificationPanel");
+
+const opening =
+panel.style.display !== "block";
+
+panel.style.display =
+opening ? "block" : "none";
+
+if(opening){
+
+await loadNotifications();
+await markAllNotificationsRead();
+
+}
+
+}
+
+
+async function markAllNotificationsRead(){
+
+if(!currentSalon)
+return;
+
+const {
+error
+} =
+await db
+.from("notifications")
+.update({
+is_read:true
+})
+.eq("salon_id",currentSalon.id)
+.eq("is_read",false);
+
+if(error){
+
+console.error(error);
+return;
+
+}
+
+await loadNotifications();
+
+}
+
+
+async function readNotification(id){
+
+const {
+error
+} =
+await db
+.from("notifications")
+.update({
+is_read:true
+})
+.eq("id",id);
+
+if(error){
+
+alert(
+"Greška: " +
+error.message
+);
+
+return;
+
+}
+
+await loadNotifications();
+
+}
+
+
+async function deleteNotification(id){
+
+const yes =
+confirm(
+"Obrisati ovu obavijest?"
+);
+
+if(!yes)
+return;
+
+const {
+error
+} =
+await db
+.from("notifications")
+.delete()
+.eq("id",id);
+
+if(error){
+
+alert(
+"Greška: " +
+error.message
+);
+
+return;
+
+}
+
+await loadNotifications();
+
+}
+
+
+async function deleteAllNotifications(){
+
+if(!currentSalon)
+return;
+
+const yes =
+confirm(
+"Obrisati sve obavijesti? Rezervacije neće biti obrisane."
+);
+
+if(!yes)
+return;
+
+const {
+error
+} =
+await db
+.from("notifications")
+.delete()
+.eq("salon_id",currentSalon.id);
+
+if(error){
+
+alert(
+"Greška: " +
+error.message
+);
+
+return;
+
+}
+
+await loadNotifications();
+
+}
+
+
+/* =========================
+   SALON
+========================= */
+
 async function loadSalon(){
 
 const u =
@@ -507,7 +982,6 @@ phone
 .eq("id",currentSalon.id));
 
 }
-
 else{
 
 ({
@@ -540,9 +1014,14 @@ await loadSalon();
 await loadServices();
 await loadBookings();
 await loadSlots();
+await loadNotifications();
 
 }
 
+
+/* =========================
+   DOSTUPNOST
+========================= */
 
 const times = [];
 
@@ -701,7 +1180,7 @@ loadSlots
 
 
 /* =========================
-   USLUGE / CJENOVNIK
+   USLUGE
 ========================= */
 
 function clearServiceForm(){
@@ -773,7 +1252,6 @@ $("serviceMsg").textContent =
 return;
 
 }
-
 
 if(editingServiceId){
 
@@ -1032,8 +1510,7 @@ onclick="deleteService('${s.id}')">
 </div>
 `;
 
-$("services")
-.appendChild(d);
+$("services").appendChild(d);
 
 });
 
@@ -1041,7 +1518,7 @@ $("services")
 
 
 /* =========================
-   TERMINI
+   REZERVACIJE
 ========================= */
 
 function bookingDateTime(b){
@@ -1092,8 +1569,7 @@ return `
 ${escapeHtml(b.booking_date)}
 ·
 ${escapeHtml(
-String(b.booking_time)
-.slice(0,5)
+String(b.booking_time).slice(0,5)
 )}
 </b>
 
@@ -1322,6 +1798,7 @@ await loadSalon();
 await loadSlots();
 await loadServices();
 await loadBookings();
+await loadNotifications();
 
 }
 
