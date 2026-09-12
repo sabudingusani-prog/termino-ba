@@ -1,0 +1,10 @@
+{
+  "name": "TERMINO BA",
+  "short_name": "TERMINO",
+  "start_url": "/termino-ba/dashboard.html",
+  "scope": "/termino-ba/",
+  "display": "standalone",
+  "background_color": "#0b0b0b",
+  "theme_color": "#0b0b0b",
+  "description": "Online rezervacije za salone"
+}
