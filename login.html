@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TERMINO - Prijava</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #080808;
+      color: white;
+      font-family: Arial, Helvetica, sans-serif;
+      padding: 30px 18px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      background: #131313;
+      border: 1px solid #353535;
+      border-radius: 24px;
+      padding: 32px 24px;
+    }
+
+    .logo {
+      text-align: center;
+      color: #deb861;
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin-bottom: 25px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 31px;
+      margin: 0 0 12px;
+    }
+
+    .subtitle {
+      color: #aaaaaa;
+      text-align: center;
+      font-size: 18px;
+      margin-bottom: 35px;
+    }
+
+    label {
+      display: block;
+      font-size: 18px;
+      margin: 20px 0 8px;
+    }
+
+    input {
+      width: 100%;
+      padding: 17px;
+      border-radius: 13px;
+      border: 1px solid #444;
+      background: #242424;
+      color: white;
+      font-size: 17px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #deb861;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 13px;
+      padding: 18px;
+      margin-top: 25px;
+      background: #deb861;
+      color: #111;
+      font-size: 19px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+    }
+
+    .forgot {
+      text-align: right;
+      margin-top: 12px;
+    }
+
+    .forgot button {
+      width: auto;
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      color: #deb861;
+      font-size: 16px;
+    }
+
+    #message {
+      text-align: center;
+      margin-top: 20px;
+      min-height: 25px;
+      line-height: 1.5;
+    }
+
+    .error {
+      color: #ff6b6b;
+    }
+
+    .success {
+      color: #65d889;
+    }
+
+    .register {
+      text-align: center;
+      margin-top: 28px;
+      color: #aaa;
+    }
+
+    .register a {
+      color: #deb861;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+
+    <div class="logo">TERMINO</div>
+
+    <h1>Prijava</h1>
+
+    <div class="subtitle">
+      Prijavite se u svoj salon
+    </div>
+
+    <form id="loginForm">
+
+      <label for="email">Email</label>
+      <input
+        id="email"
+        type="email"
+        autocomplete="email"
+        required
+      >
+
+      <label for="password">Lozinka</label>
+      <input
+        id="password"
+        type="password"
+        autocomplete="current-password"
+        required
+      >
+
+      <div class="forgot">
+        <button type="button" id="forgotButton">
+          Zaboravio sam lozinku
+        </button>
+      </div>
+
+      <button id="loginButton" type="submit">
+        Prijavi se
+      </button>
+
+    </form>
+
+    <div id="message"></div>
+
+    <div class="register">
+      Nemate račun?
+      <a href="register.html">Registrujte salon</a>
+    </div>
+
+  </div>
+
+
+<script>
+const SUPABASE_URL =
+  "https://ykkopljgzdcnfbyutxzo.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_g0DyVw3GMFgrjZHwSeuvkQ_6x54CKue";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+const loginForm =
+  document.getElementById("loginForm");
+
+const loginButton =
+  document.getElementById("loginButton");
+
+const forgotButton =
+  document.getElementById("forgotButton");
+
+const message =
+  document.getElementById("message");
+
+
+function showMessage(text, type) {
+  message.textContent = text;
+  message.className = type || "";
+}
+
+
+/* PRIJAVA */
+
+loginForm.addEventListener(
+  "submit",
+  async function(event) {
+
+    event.preventDefault();
+
+    const email =
+      document
+        .getElementById("email")
+        .value
+        .trim()
+        .toLowerCase();
+
+    const password =
+      document
+        .getElementById("password")
+        .value;
+
+    if (!email || !password) {
+      showMessage(
+        "Unesite email i lozinku.",
+        "error"
+      );
+      return;
+    }
+
+    loginButton.disabled = true;
+    loginButton.textContent = "Prijava...";
+
+    showMessage("Prijavljivanje...", "");
+
+    try {
+
+      const { data, error } =
+        await supabaseClient.auth
+          .signInWithPassword({
+            email: email,
+            password: password
+          });
+
+      if (error) {
+        throw error;
+      }
+
+      showMessage(
+        "✅ Prijava uspješna.",
+        "success"
+      );
+
+      setTimeout(function() {
+        window.location.href =
+          "dashboard.html";
+      }, 700);
+
+    } catch (error) {
+
+      showMessage(
+        "Greška: " + error.message,
+        "error"
+      );
+
+    } finally {
+
+      loginButton.disabled = false;
+      loginButton.textContent =
+        "Prijavi se";
+
+    }
+  }
+);
+
+
+/* ZABORAVLJENA LOZINKA */
+
+forgotButton.addEventListener(
+  "click",
+  async function() {
+
+    const email =
+      document
+        .getElementById("email")
+        .value
+        .trim()
+        .toLowerCase();
+
+    if (!email) {
+      showMessage(
+        "Prvo upišite svoj email.",
+        "error"
+      );
+      return;
+    }
+
+    forgotButton.disabled = true;
+
+    showMessage(
+      "Šaljem link za novu lozinku...",
+      ""
+    );
+
+    try {
+
+      const { error } =
+        await supabaseClient.auth
+          .resetPasswordForEmail(
+            email,
+            {
+              redirectTo:
+                "https://sabudingusani-prog.github.io/salon-booking-app/reset.html"
+            }
+          );
+
+      if (error) {
+        throw error;
+      }
+
+      showMessage(
+        "✅ Poslan je email. Otvorite link iz emaila i postavite novu lozinku.",
+        "success"
+      );
+
+    } catch (error) {
+
+      showMessage(
+        "Greška: " + error.message,
+        "error"
+      );
+
+    } finally {
+
+      forgotButton.disabled = false;
+
+    }
+  }
+);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TERMINO | Moj salon</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+margin:0;
+background:#0b0b0b;
+color:#fff;
+font-family:Arial,sans-serif;
+padding:20px;
+}
+
+.wrap{
+max-width:820px;
+margin:20px auto;
+}
+
+.logo{
+color:#d8ad55;
+font-size:40px;
+font-weight:900;
+}
+
+h1{
+margin:6px 0 20px;
+}
+
+.card{
+background:#151515;
+border:1px solid #333;
+border-radius:20px;
+padding:20px;
+margin:16px 0;
+}
+
+label{
+display:block;
+margin:12px 0 7px;
+font-weight:700;
+}
+
+input,select{
+width:100%;
+padding:13px;
+border-radius:10px;
+border:1px solid #444;
+background:#222;
+color:#fff;
+font-size:16px;
+}
+
+button{
+border:0;
+border-radius:11px;
+padding:12px 14px;
+font-weight:800;
+cursor:pointer;
+}
+
+.gold{
+background:#d8ad55;
+color:#111;
+margin-top:15px;
+}
+
+.gray{
+background:#2a2a2a;
+color:#fff;
+}
+
+.red{
+background:#9f2929;
+color:#fff;
+}
+
+.blue{
+background:#28589c;
+color:#fff;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:9px;
+margin-top:14px;
+}
+
+.slot{
+padding:13px 8px;
+border-radius:11px;
+text-align:center;
+border:1px solid #444;
+font-weight:800;
+}
+
+.available{
+background:#163d24;
+color:#8cffaa;
+border-color:#2d7a45;
+}
+
+.unavailable{
+background:#441d1d;
+color:#ff9c9c;
+border-color:#7e3333;
+}
+
+.service,.booking{
+background:#222;
+border:1px solid #333;
+border-radius:12px;
+padding:13px;
+margin:9px 0;
+}
+
+.serviceButtons{
+display:flex;
+gap:8px;
+margin-top:12px;
+}
+
+.serviceButtons button{
+flex:1;
+}
+
+.booking.old{
+opacity:.75;
+}
+
+.muted{
+color:#aaa;
+}
+
+#availabilityMsg,
+#serviceMsg,
+#salonMsg{
+margin-top:12px;
+font-weight:700;
+}
+
+.bookingTop{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:10px;
+flex-wrap:wrap;
+margin-bottom:15px;
+}
+
+.bookingTop h2{
+margin:0;
+}
+
+.bookingTabs{
+display:flex;
+gap:8px;
+}
+
+.tabBtn{
+background:#2a2a2a;
+color:#fff;
+padding:10px 12px;
+}
+
+.tabBtn.active{
+background:#d8ad55;
+color:#111;
+}
+
+.statusText{
+display:inline-block;
+margin-top:7px;
+font-size:13px;
+color:#aaa;
+}
+
+.hidden{
+display:none;
+}
+
+#cancelEdit{
+display:none;
+margin-left:7px;
+}
+
+@media(max-width:620px){
+.grid{
+grid-template-columns:repeat(3,1fr);
+}
+
+.bookingTabs{
+width:100%;
+}
+
+.bookingTabs button{
+flex:1;
+}
+
+.serviceButtons{
+flex-direction:column;
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<div class="logo">TERMINO</div>
+<h1>Moj salon</h1>
+
+<div class="card">
+
+<h2>🏪 Podaci salona</h2>
+
+<label>Naziv</label>
+<input id="salonName">
+
+<label>Adresa</label>
+<input id="salonAddress">
+
+<label>Telefon</label>
+<input id="salonPhone">
+
+<button class="gold" onclick="saveSalon()">
+SPREMI PODATKE
+</button>
+
+<div id="salonMsg"></div>
+
+</div>
+
+
+<div class="card">
+
+<h2>🟢🔴 Moja dostupnost</h2>
+
+<p class="muted">
+Odaberi datum pa klikni vrijeme.
+Zeleno = slobodan.
+Crveno = nedostupan.
+</p>
+
+<label>Datum</label>
+<input id="availabilityDate" type="date">
+
+<div id="slots" class="grid"></div>
+
+<div id="availabilityMsg"></div>
+
+</div>
+
+
+<div class="card">
+
+<h2>✂️ Usluge / Cjenovnik</h2>
+
+<label>Kategorija</label>
+
+<select id="serviceCategory">
+
+<option value="">-- Odaberi --</option>
+
+<option>Muški frizer</option>
+<option>Ženski frizer</option>
+<option>Barber / Brada</option>
+<option>Nokti</option>
+<option>Manikir</option>
+<option>Pedikir</option>
+<option>Obrve i trepavice</option>
+<option>Šminkanje</option>
+<option>Depilacija</option>
+<option>Masaža</option>
+<option>Kozmetički tretmani</option>
+
+</select>
+
+<label>Naziv usluge</label>
+<input id="serviceName">
+
+<label>Cijena (€)</label>
+<input id="servicePrice" type="number" step="0.01">
+
+<label>Trajanje (min)</label>
+<input id="serviceDuration" type="number">
+
+<button
+id="serviceSaveBtn"
+class="gold"
+onclick="saveService()">
+DODAJ USLUGU
+</button>
+
+<button
+id="cancelEdit"
+class="gray"
+onclick="cancelServiceEdit()">
+ODUSTANI
+</button>
+
+<div id="serviceMsg"></div>
+
+<div id="services"></div>
+
+</div>
+
+
+<div class="card">
+
+<div class="bookingTop">
+
+<h2>📅 Termini</h2>
+
+<div class="bookingTabs">
+
+<button
+id="upcomingBtn"
+class="tabBtn active"
+onclick="showUpcoming()">
+NOVI TERMINI
+</button>
+
+<button
+id="historyBtn"
+class="tabBtn"
+onclick="showHistory()">
+🕘 ISTORIJA
+</button>
+
+</div>
+
+</div>
+
+<div id="upcomingBookings">
+<div class="muted">Učitavanje...</div>
+</div>
+
+<div id="historyBookings" class="hidden"></div>
+
+</div>
+
+
+<button class="gray" onclick="logout()">
+ODJAVI SE
+</button>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const SUPABASE_URL =
+"https://ykkopljgzdcnfbyutxzo.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_g0DyVw3GMFgrjZHwSeuvkQ_6x54CKue";
+
+const db =
+supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+let currentSalon = null;
+let editingServiceId = null;
+let currentServices = [];
+
+const $ =
+id => document.getElementById(id);
+
+
+function escapeHtml(value){
+
+return String(value ?? "")
+.replaceAll("&","&amp;")
+.replaceAll("<","&lt;")
+.replaceAll(">","&gt;")
+.replaceAll('"',"&quot;")
+.replaceAll("'","&#039;");
+
+}
+
+
+async function user(){
+
+const {
+data:{user}
+} =
+await db.auth.getUser();
+
+if(!user){
+
+location.href =
+"login.html";
+
+return null;
+
+}
+
+return user;
+
+}
+
+
+async function logout(){
+
+await db.auth.signOut();
+
+location.href =
+"login.html";
+
+}
+
+
+async function loadSalon(){
+
+const u =
+await user();
+
+if(!u) return null;
+
+const {
+data,
+error
+} =
+await db
+.from("salons")
+.select("*")
+.eq("owner_id",u.id)
+.maybeSingle();
+
+if(error){
+
+console.error(error);
+return null;
+
+}
+
+currentSalon = data;
+
+if(data){
+
+$("salonName").value =
+data.name || "";
+
+$("salonAddress").value =
+data.address || "";
+
+$("salonPhone").value =
+data.phone || "";
+
+}
+
+return data;
+
+}
+
+
+async function saveSalon(){
+
+const u =
+await user();
+
+if(!u) return;
+
+const name =
+$("salonName").value.trim();
+
+const address =
+$("salonAddress").value.trim();
+
+const phone =
+$("salonPhone").value.trim();
+
+if(!name){
+
+$("salonMsg").textContent =
+"Upiši naziv salona.";
+
+return;
+
+}
+
+let error;
+
+if(currentSalon){
+
+({
+error
+} =
+await db
+.from("salons")
+.update({
+name,
+address,
+phone
+})
+.eq("id",currentSalon.id));
+
+}
+
+else{
+
+({
+error
+} =
+await db
+.from("salons")
+.insert({
+owner_id:u.id,
+name,
+address,
+phone
+}));
+
+}
+
+if(error){
+
+$("salonMsg").textContent =
+"Greška: " + error.message;
+
+return;
+
+}
+
+$("salonMsg").textContent =
+"✅ Spremljeno.";
+
+await loadSalon();
+await loadServices();
+await loadBookings();
+await loadSlots();
+
+}
+
+
+const times = [];
+
+for(let h = 8; h <= 20; h++){
+
+for(let m of [0,15,30,45]){
+
+if(h === 20 && m > 0)
+continue;
+
+times.push(
+String(h).padStart(2,"0")
++
+":"
++
+String(m).padStart(2,"0")
+);
+
+}
+
+}
+
+
+async function loadSlots(){
+
+if(!currentSalon)
+return;
+
+const date =
+$("availabilityDate").value;
+
+if(!date)
+return;
+
+const {
+data,
+error
+} =
+await db
+.from("availability_slots")
+.select("slot_time,is_available")
+.eq("salon_id",currentSalon.id)
+.eq("slot_date",date);
+
+if(error){
+
+$("availabilityMsg").textContent =
+"Greška: " + error.message;
+
+return;
+
+}
+
+const map = {};
+
+(data || []).forEach(x => {
+
+map[
+String(x.slot_time).slice(0,5)
+] =
+x.is_available;
+
+});
+
+$("slots").innerHTML = "";
+
+times.forEach(t => {
+
+const b =
+document.createElement("button");
+
+const available =
+map[t] === true;
+
+b.className =
+"slot "
++
+(
+available
+?
+"available"
+:
+"unavailable"
+);
+
+b.textContent = t;
+
+b.onclick =
+() =>
+toggleSlot(
+date,
+t,
+!available
+);
+
+$("slots").appendChild(b);
+
+});
+
+}
+
+
+async function toggleSlot(
+date,
+time,
+isAvailable
+){
+
+if(!currentSalon)
+return;
+
+const {
+error
+} =
+await db
+.from("availability_slots")
+.upsert(
+{
+salon_id:currentSalon.id,
+slot_date:date,
+slot_time:time,
+is_available:isAvailable
+},
+{
+onConflict:
+"salon_id,slot_date,slot_time"
+}
+);
+
+if(error){
+
+$("availabilityMsg").textContent =
+"Greška: " + error.message;
+
+return;
+
+}
+
+$("availabilityMsg").textContent =
+isAvailable
+?
+"🟢 Označeno slobodno."
+:
+"🔴 Označeno nedostupno.";
+
+await loadSlots();
+
+}
+
+
+$("availabilityDate")
+.addEventListener(
+"change",
+loadSlots
+);
+
+
+/* =========================
+   USLUGE / CJENOVNIK
+========================= */
+
+function clearServiceForm(){
+
+$("serviceCategory").value = "";
+$("serviceName").value = "";
+$("servicePrice").value = "";
+$("serviceDuration").value = "";
+
+}
+
+
+function cancelServiceEdit(){
+
+editingServiceId = null;
+
+clearServiceForm();
+
+$("serviceSaveBtn").textContent =
+"DODAJ USLUGU";
+
+$("cancelEdit").style.display =
+"none";
+
+$("serviceMsg").textContent =
+"";
+
+}
+
+
+async function saveService(){
+
+if(!currentSalon){
+
+$("serviceMsg").textContent =
+"Prvo spremi salon.";
+
+return;
+
+}
+
+const category =
+$("serviceCategory").value;
+
+const name =
+$("serviceName").value.trim();
+
+const price =
+Number(
+$("servicePrice").value
+);
+
+const duration =
+parseInt(
+$("serviceDuration").value,
+10
+);
+
+if(
+!category ||
+!name ||
+!Number.isFinite(price) ||
+!duration
+){
+
+$("serviceMsg").textContent =
+"Popuni sva polja.";
+
+return;
+
+}
+
+
+/* IZMJENA POSTOJEĆE USLUGE */
+
+if(editingServiceId){
+
+const {
+error
+} =
+await db
+.from("services")
+.update({
+category,
+name,
+price,
+duration_minutes:duration
+})
+.eq("id",editingServiceId)
+.eq("salon_id",currentSalon.id);
+
+if(error){
+
+$("serviceMsg").textContent =
+"Greška: " + error.message;
+
+return;
+
+}
+
+$("serviceMsg").textContent =
+"✅ Usluga izmijenjena.";
+
+editingServiceId = null;
+
+clearServiceForm();
+
+$("serviceSaveBtn").textContent =
+"DODAJ USLUGU";
+
+$("cancelEdit").style.display =
+"none";
+
+await loadServices();
+
+return;
+
+}
+
+
+/* NOVA USLUGA */
+
+const {
+error
+} =
+await db
+.from("services")
+.insert({
+salon_id:currentSalon.id,
+category,
+name,
+price,
+duration_minutes:duration
+});
+
+if(error){
+
+$("serviceMsg").textContent =
+"Greška: " + error.message;
+
+return;
+
+}
+
+$("serviceMsg").textContent =
+"✅ Usluga dodana.";
+
+clearServiceForm();
+
+await loadServices();
+
+}
+
+
+function editService(id){
+
+const service =
+currentServices.find(
+x => x.id === id
+);
+
+if(!service)
+return;
+
+editingServiceId =
+service.id;
+
+$("serviceCategory").value =
+service.category || "";
+
+$("serviceName").value =
+service.name || "";
+
+$("servicePrice").value =
+service.price ?? "";
+
+$("serviceDuration").value =
+service.duration_minutes ?? "";
+
+$("serviceSaveBtn").textContent =
+"SPREMI IZMJENE";
+
+$("cancelEdit").style.display =
+"inline-block";
+
+$("serviceMsg").textContent =
+"✏️ Izmjenjuješ: " + service.name;
+
+window.scrollTo({
+top:
+$("serviceCategory")
+.getBoundingClientRect().top
++
+window.scrollY
+-
+80,
+behavior:"smooth"
+});
+
+}
+
+
+async function deleteService(id){
+
+const service =
+currentServices.find(
+x => x.id === id
+);
+
+if(!service)
+return;
+
+const yes =
+confirm(
+'Izbrisati uslugu "' +
+service.name +
+'"?'
+);
+
+if(!yes)
+return;
+
+const {
+error
+} =
+await db
+.from("services")
+.delete()
+.eq("id",id)
+.eq("salon_id",currentSalon.id);
+
+if(error){
+
+$("serviceMsg").textContent =
+"Ne mogu izbrisati: "
++
+error.message;
+
+return;
+
+}
+
+if(editingServiceId === id){
+
+cancelServiceEdit();
+
+}
+
+$("serviceMsg").textContent =
+"🗑️ Usluga izbrisana.";
+
+await loadServices();
+
+}
+
+
+async function loadServices(){
+
+if(!currentSalon)
+return;
+
+const {
+data,
+error
+} =
+await db
+.from("services")
+.select("*")
+.eq("salon_id",currentSalon.id)
+.order("category")
+.order("name");
+
+if(error){
+
+$("serviceMsg").textContent =
+"Greška: " + error.message;
+
+return;
+
+}
+
+currentServices =
+data || [];
+
+$("services").innerHTML = "";
+
+if(!currentServices.length){
+
+$("services").innerHTML =
+'<div class="muted">Još nema usluga.</div>';
+
+return;
+
+}
+
+currentServices.forEach(s => {
+
+const d =
+document.createElement("div");
+
+d.className =
+"service";
+
+d.innerHTML =
+`
+<b>
+${escapeHtml(s.category || "Ostalo")}
+—
+${escapeHtml(s.name)}
+</b>
+
+<br><br>
+
+💶 ${escapeHtml(s.price)} €
+&nbsp; · &nbsp;
+⏱️ ${escapeHtml(s.duration_minutes)} min
+
+<div class="serviceButtons">
+
+<button
+class="blue"
+onclick="editService('${s.id}')">
+✏️ IZMIJENI
+</button>
+
+<button
+class="red"
+onclick="deleteService('${s.id}')">
+🗑️ IZBRIŠI
+</button>
+
+</div>
+`;
+
+$("services")
+.appendChild(d);
+
+});
+
+}
+
+
+/* =========================
+   TERMINI
+========================= */
+
+function bookingDateTime(b){
+
+const time =
+String(
+b.booking_time || "00:00"
+).slice(0,8);
+
+return new Date(
+b.booking_date
++
+"T"
++
+time
+);
+
+}
+
+
+function bookingHtml(
+b,
+old=false
+){
+
+const s =
+b.services || {};
+
+let status = "";
+
+if(b.status){
+
+status =
+`
+<br>
+<span class="statusText">
+Status:
+${escapeHtml(b.status)}
+</span>
+`;
+
+}
+
+return `
+<div class="booking ${old ? "old" : ""}">
+
+<b>
+${escapeHtml(b.booking_date)}
+·
+${escapeHtml(
+String(b.booking_time)
+.slice(0,5)
+)}
+</b>
+
+<br><br>
+
+✂️
+${escapeHtml(s.category || "")}
+${s.category && s.name ? " — " : ""}
+${escapeHtml(s.name || "")}
+
+<br>
+
+👤 ${escapeHtml(
+b.customer_name || ""
+)}
+
+<br>
+
+📞 ${escapeHtml(
+b.customer_phone || ""
+)}
+
+${b.customer_email
+?
+`<br>✉️ ${escapeHtml(b.customer_email)}`
+:
+""
+}
+
+${b.note
+?
+`<br>📝 ${escapeHtml(b.note)}`
+:
+""
+}
+
+${status}
+
+</div>
+`;
+
+}
+
+
+async function loadBookings(){
+
+if(!currentSalon)
+return;
+
+const {
+data,
+error
+} =
+await db
+.from("bookings")
+.select(`
+customer_name,
+customer_phone,
+customer_email,
+booking_date,
+booking_time,
+status,
+note,
+services(
+name,
+category,
+price
+)
+`)
+.eq(
+"salon_id",
+currentSalon.id
+)
+.order("booking_date")
+.order("booking_time");
+
+if(error){
+
+$("upcomingBookings").innerHTML =
+"Greška: " + error.message;
+
+$("historyBookings").innerHTML =
+"Greška: " + error.message;
+
+return;
+
+}
+
+const now =
+new Date();
+
+const all =
+data || [];
+
+const upcoming =
+all
+.filter(
+b =>
+bookingDateTime(b) >= now
+)
+.sort(
+(a,b) =>
+bookingDateTime(a)
+-
+bookingDateTime(b)
+);
+
+const history =
+all
+.filter(
+b =>
+bookingDateTime(b) < now
+)
+.sort(
+(a,b) =>
+bookingDateTime(b)
+-
+bookingDateTime(a)
+);
+
+if(upcoming.length){
+
+$("upcomingBookings").innerHTML =
+upcoming
+.map(
+b => bookingHtml(b,false)
+)
+.join("");
+
+}
+else{
+
+$("upcomingBookings").innerHTML =
+`
+<div class="muted">
+Trenutno nema novih termina.
+</div>
+`;
+
+}
+
+if(history.length){
+
+$("historyBookings").innerHTML =
+history
+.map(
+b => bookingHtml(b,true)
+)
+.join("");
+
+}
+else{
+
+$("historyBookings").innerHTML =
+`
+<div class="muted">
+Još nema starih termina.
+</div>
+`;
+
+}
+
+}
+
+
+function showUpcoming(){
+
+$("upcomingBookings")
+.classList.remove("hidden");
+
+$("historyBookings")
+.classList.add("hidden");
+
+$("upcomingBtn")
+.classList.add("active");
+
+$("historyBtn")
+.classList.remove("active");
+
+}
+
+
+function showHistory(){
+
+$("upcomingBookings")
+.classList.add("hidden");
+
+$("historyBookings")
+.classList.remove("hidden");
+
+$("historyBtn")
+.classList.add("active");
+
+$("upcomingBtn")
+.classList.remove("active");
+
+}
+
+
+/* =========================
+   START
+========================= */
+
+async function init(){
+
+const d =
+new Date();
+
+const year =
+d.getFullYear();
+
+const month =
+String(
+d.getMonth()+1
+).padStart(2,"0");
+
+const day =
+String(
+d.getDate()
+).padStart(2,"0");
+
+$("availabilityDate").value =
+`${year}-${month}-${day}`;
+
+await loadSalon();
+await loadSlots();
+await loadServices();
+await loadBookings();
+
+}
+
+init();
+
+</script>
+
+</body>
+</html>

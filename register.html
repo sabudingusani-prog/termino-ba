@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TERMINO - Registracija salona</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #080808;
+      color: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
+      padding: 30px 18px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      background: #131313;
+      border: 1px solid #353535;
+      border-radius: 24px;
+      padding: 32px 24px;
+    }
+
+    .logo {
+      text-align: center;
+      color: #deb861;
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin-bottom: 25px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 31px;
+      margin: 0 0 12px;
+    }
+
+    .subtitle {
+      color: #aaaaaa;
+      text-align: center;
+      font-size: 18px;
+      margin-bottom: 35px;
+    }
+
+    label {
+      display: block;
+      font-size: 18px;
+      margin: 20px 0 8px;
+    }
+
+    input {
+      width: 100%;
+      padding: 17px;
+      border-radius: 13px;
+      border: 1px solid #444444;
+      background: #242424;
+      color: #ffffff;
+      font-size: 17px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #deb861;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 13px;
+      padding: 18px;
+      margin-top: 28px;
+      background: #deb861;
+      color: #111111;
+      font-size: 19px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #message {
+      text-align: center;
+      margin-top: 22px;
+      font-size: 17px;
+      line-height: 1.5;
+      min-height: 25px;
+    }
+
+    .error {
+      color: #ff6b6b;
+    }
+
+    .success {
+      color: #65d889;
+    }
+
+    .login {
+      margin-top: 28px;
+      text-align: center;
+      color: #aaaaaa;
+    }
+
+    .login a {
+      color: #deb861;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+
+    <div class="logo">TERMINO</div>
+
+    <h1>Registracija salona</h1>
+
+    <div class="subtitle">
+      Kreirajte račun za svoj salon
+    </div>
+
+    <form id="registerForm">
+
+      <label for="ownerName">Ime i prezime vlasnika</label>
+      <input
+        id="ownerName"
+        type="text"
+        autocomplete="name"
+        required
+      >
+
+      <label for="salonName">Naziv salona</label>
+      <input
+        id="salonName"
+        type="text"
+        required
+      >
+
+      <label for="email">Email</label>
+      <input
+        id="email"
+        type="email"
+        autocomplete="email"
+        required
+      >
+
+      <label for="password">Lozinka</label>
+      <input
+        id="password"
+        type="password"
+        autocomplete="new-password"
+        minlength="6"
+        required
+      >
+
+      <button id="registerButton" type="submit">
+        Registruj salon
+      </button>
+
+    </form>
+
+    <div id="message"></div>
+
+    <div class="login">
+      Već imate račun?
+      <a href="login.html">Prijavite se</a>
+    </div>
+
+  </div>
+
+
+<script>
+const SUPABASE_URL = "https://ykkopljgzdcnfbyutxzo.supabase.co";
+const SUPABASE_KEY = "sb_publishable_g0DyVw3GMFgrjZHwSeuvkQ_6x54CKue";
+
+const form = document.getElementById("registerForm");
+const button = document.getElementById("registerButton");
+const message = document.getElementById("message");
+
+function showMessage(text, type) {
+  message.textContent = text;
+  message.className = type;
+}
+
+form.addEventListener("submit", async function(event) {
+
+  event.preventDefault();
+
+  const ownerName =
+    document.getElementById("ownerName").value.trim();
+
+  const salonName =
+    document.getElementById("salonName").value.trim();
+
+  const email =
+    document.getElementById("email").value.trim().toLowerCase();
+
+  const password =
+    document.getElementById("password").value;
+
+  if (!ownerName || !salonName || !email || !password) {
+    showMessage("Popunite sva polja.", "error");
+    return;
+  }
+
+  if (password.length < 6) {
+    showMessage(
+      "Lozinka mora imati najmanje 6 znakova.",
+      "error"
+    );
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Registracija...";
+  showMessage("Kreiranje računa...", "");
+
+  try {
+
+    const signupResponse = await fetch(
+      SUPABASE_URL + "/auth/v1/signup",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_KEY,
+          "Authorization": "Bearer " + SUPABASE_KEY
+        },
+
+        body: JSON.stringify({
+          email: email,
+          password: password,
+
+          data: {
+            owner_name: ownerName,
+            salon_name: salonName
+          }
+        })
+      }
+    );
+
+    const signupData = await signupResponse.json();
+
+    if (!signupResponse.ok) {
+
+      let errorText =
+        signupData.msg ||
+        signupData.message ||
+        signupData.error_description ||
+        "Registracija nije uspjela.";
+
+      if (
+        errorText.toLowerCase().includes("already") ||
+        errorText.toLowerCase().includes("registered")
+      ) {
+        errorText =
+          "Ovaj email je već registrovan. Pokušajte se prijaviti.";
+      }
+
+      throw new Error(errorText);
+    }
+
+
+    const user = signupData.user;
+    const session = signupData.session;
+
+
+    /*
+      Ako Supabase odmah prijavi korisnika,
+      pokušavamo odmah napraviti salon.
+    */
+
+    if (
+      user &&
+      user.id &&
+      session &&
+      session.access_token
+    ) {
+
+      try {
+
+        const salonResponse = await fetch(
+          SUPABASE_URL + "/rest/v1/salons",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json",
+              "apikey": SUPABASE_KEY,
+              "Authorization":
+                "Bearer " + session.access_token,
+              "Prefer": "return=minimal"
+            },
+
+            body: JSON.stringify({
+              owner_id: user.id,
+              name: salonName
+            })
+          }
+        );
+
+        /*
+          Ako salon već postoji, ne prekidamo registraciju.
+          Dashboard će ga svakako učitati.
+        */
+
+      } catch (salonError) {
+        console.log("Salon će biti kreiran nakon prijave.");
+      }
+
+
+      localStorage.setItem(
+        "termino_access_token",
+        session.access_token
+      );
+
+      if (session.refresh_token) {
+        localStorage.setItem(
+          "termino_refresh_token",
+          session.refresh_token
+        );
+      }
+
+
+      showMessage(
+        "✅ Registracija uspješna! Otvaram vaš TERMINO...",
+        "success"
+      );
+
+      setTimeout(function() {
+        window.location.href = "dashboard.html";
+      }, 1200);
+
+      return;
+    }
+
+
+    /*
+      Ako Supabase zahtijeva potvrdu emaila.
+    */
+
+    showMessage(
+      "✅ Račun je kreiran. Ako dobijete email za potvrdu, potvrdite ga, a zatim se prijavite.",
+      "success"
+    );
+
+    setTimeout(function() {
+      window.location.href = "login.html";
+    }, 3000);
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    showMessage(
+      "Greška: " + error.message,
+      "error"
+    );
+
+  } finally {
+
+    button.disabled = false;
+    button.textContent = "Registruj salon";
+
+  }
+
+});
+</script>
+
+</body>
+</html>

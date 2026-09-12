@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>TERMINO | Rezervacija</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  background:#0b0b0b;
+  color:#fff;
+  font-family:Arial,sans-serif;
+  padding:20px;
+}
+
+.wrap{
+  max-width:720px;
+  margin:20px auto;
+}
+
+.logo{
+  color:#d8ad55;
+  font-size:40px;
+  font-weight:900;
+}
+
+h1{
+  margin-bottom:8px;
+}
+
+.card{
+  background:#151515;
+  border:1px solid #333;
+  border-radius:20px;
+  padding:20px;
+  margin:16px 0;
+}
+
+label{
+  display:block;
+  margin:13px 0 7px;
+  font-weight:800;
+}
+
+input,
+select,
+textarea{
+  width:100%;
+  padding:14px;
+  border-radius:11px;
+  border:1px solid #444;
+  background:#222;
+  color:#fff;
+  font-size:16px;
+}
+
+textarea{
+  min-height:90px;
+  resize:vertical;
+}
+
+button{
+  border:0;
+  border-radius:12px;
+  padding:14px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+#book{
+  width:100%;
+  background:#d8ad55;
+  color:#111;
+  font-size:17px;
+  margin-top:18px;
+}
+
+#book:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+.muted{
+  color:#aaa;
+}
+
+.optional{
+  color:#aaa;
+  font-size:13px;
+  font-weight:400;
+}
+
+#timeGrid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:9px;
+  margin-top:12px;
+}
+
+.timeBtn{
+  padding:12px 6px;
+  text-align:center;
+  font-size:14px;
+}
+
+.free{
+  background:#164c2a;
+  color:#8cffaa;
+  border:1px solid #32a45a;
+}
+
+.busy{
+  background:#542020;
+  color:#ff9c9c;
+  border:1px solid #a33b3b;
+  opacity:.9;
+}
+
+.selected{
+  outline:3px solid #d8ad55;
+}
+
+#msg{
+  margin-top:15px;
+  font-weight:800;
+  text-align:center;
+  line-height:1.5;
+}
+
+.cancelBox{
+  margin-top:18px;
+  padding:14px;
+  border-radius:12px;
+  background:#222;
+  border:1px solid #444;
+  line-height:1.5;
+}
+
+.cancelBox a{
+  color:#d8ad55;
+  font-weight:900;
+}
+
+@media(max-width:600px){
+  #timeGrid{
+    grid-template-columns:repeat(3,1fr);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+  <div class="logo">TERMINO</div>
+
+  <h1>Rezerviši termin</h1>
+
+  <p class="muted">
+    🟢 Slobodno &nbsp; • &nbsp; 🔴 Zauzeto
+  </p>
+
+
+  <div class="card">
+
+    <label>Salon</label>
+
+    <select id="salon">
+      <option value="">
+        -- Odaberi salon --
+      </option>
+    </select>
+
+
+    <label>Usluga</label>
+
+    <select id="service" disabled>
+      <option value="">
+        -- Prvo odaberi salon --
+      </option>
+    </select>
+
+
+    <label>Datum</label>
+
+    <input
+      id="date"
+      type="date"
+    >
+
+
+    <label>Termini</label>
+
+    <div id="timeGrid">
+      <div class="muted">
+        Odaberi salon, uslugu i datum.
+      </div>
+    </div>
+
+    <input
+      id="selectedTime"
+      type="hidden"
+    >
+
+  </div>
+
+
+  <div class="card">
+
+    <label>Ime i prezime</label>
+
+    <input
+      id="name"
+      type="text"
+      placeholder="Ime i prezime"
+      autocomplete="name"
+    >
+
+
+    <label>Telefon</label>
+
+    <input
+      id="phone"
+      type="tel"
+      placeholder="Broj telefona"
+      autocomplete="tel"
+    >
+
+
+    <label>
+      Email
+      <span class="optional">
+        (nije obavezno)
+      </span>
+    </label>
+
+    <input
+      id="email"
+      type="email"
+      placeholder="Email adresa - nije obavezno"
+      autocomplete="email"
+    >
+
+
+    <label>
+      Napomena
+      <span class="optional">
+        (nije obavezno)
+      </span>
+    </label>
+
+    <textarea
+      id="note"
+      placeholder="Nije obavezno"
+    ></textarea>
+
+
+    <button id="book">
+      REZERVIŠI TERMIN
+    </button>
+
+
+    <div id="msg"></div>
+
+    <div id="cancelInfo"></div>
+
+  </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const db = supabase.createClient(
+  "https://ykkopljgzdcnfbyutxzo.supabase.co",
+  "sb_publishable_g0DyVw3GMFgrjZHwSeuvkQ_6x54CKue"
+);
+
+const $ = id =>
+  document.getElementById(id);
+
+
+const preselectedSalon =
+  new URLSearchParams(
+    window.location.search
+  ).get("salon");
+
+
+let serviceMap = {};
+
+let loadingTimes = false;
+
+
+/* =========================
+   DATUM
+========================= */
+
+const today =
+  new Date();
+
+const localToday =
+  today.getFullYear()
+  + "-"
+  + String(today.getMonth()+1).padStart(2,"0")
+  + "-"
+  + String(today.getDate()).padStart(2,"0");
+
+$("date").min =
+  localToday;
+
+
+/* =========================
+   PORUKA
+========================= */
+
+function showMessage(
+  text,
+  type = "normal"
+){
+
+  const msg =
+    $("msg");
+
+  msg.textContent =
+    text;
+
+  if(type === "error"){
+
+    msg.style.color =
+      "#ff7373";
+
+  }
+
+  else if(type === "success"){
+
+    msg.style.color =
+      "#7ee787";
+
+  }
+
+  else{
+
+    msg.style.color =
+      "#ddd";
+
+  }
+
+}
+
+
+/* =========================
+   SALONI
+========================= */
+
+async function loadSalons(){
+
+  const {
+    data,
+    error
+  } =
+  await db
+    .from("salons")
+    .select("id,name")
+    .order("name");
+
+
+  if(error){
+
+    showMessage(
+      "Greška pri učitavanju salona.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  (data || [])
+  .forEach(salon=>{
+
+    const option =
+      document.createElement(
+        "option"
+      );
+
+    option.value =
+      salon.id;
+
+    option.textContent =
+      salon.name || "Salon";
+
+    $("salon")
+      .appendChild(option);
+
+  });
+
+
+  if(preselectedSalon){
+
+    $("salon").value =
+      preselectedSalon;
+
+    await loadServices();
+
+  }
+
+}
+
+
+/* =========================
+   USLUGE
+========================= */
+
+async function loadServices(){
+
+  const salonId =
+    $("salon").value;
+
+
+  $("service").innerHTML =
+    '<option value="">-- Odaberi uslugu --</option>';
+
+
+  $("service").disabled =
+    !salonId;
+
+
+  serviceMap = {};
+
+  $("selectedTime").value =
+    "";
+
+
+  if(!salonId){
+
+    $("timeGrid").innerHTML =
+      '<div class="muted">Odaberi salon, uslugu i datum.</div>';
+
+    return;
+
+  }
+
+
+  const {
+    data,
+    error
+  } =
+  await db
+    .from("services")
+    .select(
+      "id,name,category,price,duration_minutes"
+    )
+    .eq(
+      "salon_id",
+      salonId
+    )
+    .order("category")
+    .order("name");
+
+
+  if(error){
+
+    showMessage(
+      "Greška pri učitavanju usluga.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  (data || [])
+  .forEach(service=>{
+
+    serviceMap[
+      service.id
+    ] =
+      service;
+
+
+    const option =
+      document.createElement(
+        "option"
+      );
+
+
+    option.value =
+      service.id;
+
+
+    option.textContent =
+      `${service.category || ""}
+      — ${service.name}
+      — ${service.price} €
+      — ${service.duration_minutes} min`;
+
+
+    $("service")
+      .appendChild(option);
+
+  });
+
+
+  await loadTimes();
+
+}
+
+
+/* =========================
+   PRIKAZ TERMINA
+========================= */
+
+function renderTimes(slots){
+
+  const grid =
+    $("timeGrid");
+
+
+  grid.innerHTML =
+    "";
+
+
+  $("selectedTime").value =
+    "";
+
+
+  if(!slots || !slots.length){
+
+    grid.innerHTML =
+      '<div class="muted">Frizer nema označenih termina za ovaj datum.</div>';
+
+    return;
+
+  }
+
+
+  slots.forEach(slot=>{
+
+    const time =
+      String(
+        slot.slot_time
+      ).slice(0,5);
+
+
+    const free =
+      slot.is_free === true;
+
+
+    const button =
+      document.createElement(
+        "button"
+      );
+
+
+    button.type =
+      "button";
+
+
+    button.className =
+      "timeBtn "
+      +
+      (
+        free
+        ? "free"
+        : "busy"
+      );
+
+
+    button.textContent =
+      (
+        free
+        ? "🟢 "
+        : "🔴 "
+      )
+      +
+      time;
+
+
+    button.disabled =
+      !free;
+
+
+    if(free){
+
+      button.addEventListener(
+        "click",
+        ()=>{
+
+          document
+          .querySelectorAll(
+            ".timeBtn"
+          )
+          .forEach(x=>
+            x.classList.remove(
+              "selected"
+            )
+          );
+
+
+          button.classList.add(
+            "selected"
+          );
+
+
+          $("selectedTime").value =
+            time;
+
+        }
+      );
+
+    }
+
+
+    grid.appendChild(
+      button
+    );
+
+  });
+
+}
+
+
+/* =========================
+   TERMINI IZ SUPABASE
+========================= */
+
+async function loadTimes(){
+
+  if(loadingTimes)
+    return;
+
+
+  const salonId =
+    $("salon").value;
+
+
+  const serviceId =
+    $("service").value;
+
+
+  const bookingDate =
+    $("date").value;
+
+
+  $("selectedTime").value =
+    "";
+
+
+  if(
+    !salonId ||
+    !serviceId ||
+    !bookingDate
+  ){
+
+    $("timeGrid").innerHTML =
+      '<div class="muted">Odaberi salon, uslugu i datum.</div>';
+
+    return;
+
+  }
+
+
+  loadingTimes =
+    true;
+
+
+  $("timeGrid").innerHTML =
+    '<div class="muted">Provjeravam termine...</div>';
+
+
+  const {
+    data,
+    error
+  } =
+  await db.rpc(
+    "get_booking_slots",
+    {
+
+      p_salon_id:
+        salonId,
+
+      p_service_id:
+        serviceId,
+
+      p_booking_date:
+        bookingDate
+
+    }
+  );
+
+
+  loadingTimes =
+    false;
+
+
+  if(error){
+
+    console.error(error);
+
+    $("timeGrid").innerHTML =
+      '<div class="muted">Nije moguće učitati termine.</div>';
+
+
+    showMessage(
+      "Greška pri provjeri termina: "
+      +
+      error.message,
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  renderTimes(
+    data || []
+  );
+
+}
+
+
+/* =========================
+   PROMJENE
+========================= */
+
+$("salon")
+.addEventListener(
+  "change",
+  async()=>{
+
+    $("cancelInfo").innerHTML =
+      "";
+
+    showMessage("");
+
+    await loadServices();
+
+  }
+);
+
+
+$("service")
+.addEventListener(
+  "change",
+  async()=>{
+
+    $("cancelInfo").innerHTML =
+      "";
+
+    showMessage("");
+
+    await loadTimes();
+
+  }
+);
+
+
+$("date")
+.addEventListener(
+  "change",
+  async()=>{
+
+    $("cancelInfo").innerHTML =
+      "";
+
+    showMessage("");
+
+    await loadTimes();
+
+  }
+);
+
+
+/* =========================
+   REZERVACIJA
+========================= */
+
+$("book")
+.addEventListener(
+  "click",
+  async()=>{
+
+
+    const salonId =
+      $("salon").value;
+
+
+    const serviceId =
+      $("service").value;
+
+
+    const bookingDate =
+      $("date").value;
+
+
+    const bookingTime =
+      $("selectedTime").value;
+
+
+    const customerName =
+      $("name").value.trim();
+
+
+    const customerPhone =
+      $("phone").value.trim();
+
+
+    const customerEmail =
+      $("email").value.trim();
+
+
+    const note =
+      $("note").value.trim();
+
+
+    if(
+      !salonId ||
+      !serviceId ||
+      !bookingDate ||
+      !bookingTime ||
+      !customerName ||
+      !customerPhone
+    ){
+
+      showMessage(
+        "Upiši ime i telefon, pa izaberi zeleni termin.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    $("book").disabled =
+      true;
+
+
+    $("book").textContent =
+      "REZERVIŠEM...";
+
+
+    showMessage(
+      "Provjeravam da li je termin još slobodan..."
+    );
+
+
+    const {
+      data,
+      error
+    } =
+    await db.rpc(
+      "create_booking_if_available",
+      {
+
+        p_salon_id:
+          salonId,
+
+        p_service_id:
+          serviceId,
+
+        p_customer_name:
+          customerName,
+
+        p_customer_email:
+          customerEmail || null,
+
+        p_customer_phone:
+          customerPhone,
+
+        p_booking_date:
+          bookingDate,
+
+        p_booking_time:
+          bookingTime,
+
+        p_note:
+          note || null
+
+      }
+    );
+
+
+    $("book").disabled =
+      false;
+
+
+    $("book").textContent =
+      "REZERVIŠI TERMIN";
+
+
+    if(error){
+
+      showMessage(
+        "⛔ "
+        +
+        error.message,
+        "error"
+      );
+
+
+      await loadTimes();
+
+      return;
+
+    }
+
+
+    await loadTimes();
+
+
+    showMessage(
+      "✅ Termin je uspješno rezervisan.",
+      "success"
+    );
+
+
+    const token =
+      data?.cancel_token;
+
+
+    if(token){
+
+      const cancelUrl =
+        window.location.origin
+        +
+        window.location.pathname.replace(
+          "booking.html",
+          "cancel.html"
+        )
+        +
+        "?token="
+        +
+        encodeURIComponent(
+          token
+        );
+
+
+      $("cancelInfo").innerHTML =
+        `
+        <div class="cancelBox">
+
+          <strong>
+            Rezervacija je potvrđena.
+          </strong>
+
+          <br><br>
+
+          Ako kasnije ne možeš doći,
+          termin možeš otkazati ovdje:
+
+          <br><br>
+
+          <a href="${cancelUrl}">
+            OTKAŽI MOJ TERMIN
+          </a>
+
+        </div>
+        `;
+
+    }
+
+  }
+);
+
+
+/* =========================
+   START
+========================= */
+
+loadSalons();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>TERMINO Admin</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #0b0b0b;
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    .wrap {
+      max-width: 900px;
+      margin: 20px auto;
+    }
+
+    .logo {
+      color: #e2b955;
+      font-size: 38px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 28px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .stat {
+      background: #151515;
+      border: 1px solid #333;
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .stat-number {
+      font-size: 28px;
+      font-weight: bold;
+      color: #e2b955;
+    }
+
+    .stat-label {
+      color: #aaa;
+      margin-top: 5px;
+    }
+
+    .card {
+      background: #151515;
+      border: 1px solid #333;
+      border-radius: 18px;
+      padding: 18px;
+      margin: 14px 0;
+    }
+
+    .salon-name {
+      font-size: 23px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .email {
+      color: #aaa;
+      word-break: break-all;
+      margin-bottom: 10px;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 7px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+      margin: 8px 0 12px;
+      background: #292929;
+    }
+
+    .active {
+      color: #4ade80;
+    }
+
+    .trial {
+      color: #facc15;
+    }
+
+    .suspended {
+      color: #fb923c;
+    }
+
+    .banned {
+      color: #f87171;
+    }
+
+    .none {
+      color: #aaa;
+    }
+
+    .date {
+      color: #bbb;
+      font-size: 14px;
+      margin: 5px 0;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 15px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 13px 8px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn30 {
+      background: #e2b955;
+      color: #111;
+    }
+
+    .btn7 {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btnSuspend {
+      background: #ea580c;
+      color: white;
+    }
+
+    .btnBan {
+      background: #b91c1c;
+      color: white;
+    }
+
+    .logout {
+      width: 100%;
+      background: #333;
+      color: white;
+      margin-top: 20px;
+    }
+
+    #message {
+      background: #151515;
+      border: 1px solid #333;
+      border-radius: 14px;
+      padding: 15px;
+      margin: 15px 0;
+      display: none;
+    }
+
+    .loading {
+      color: #aaa;
+      text-align: center;
+      padding: 30px;
+    }
+
+    @media (min-width: 700px) {
+      .stats {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .buttons {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+  <div class="logo">TERMINO</div>
+  <h1>ADMIN</h1>
+
+  <div id="message"></div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-number" id="total">0</div>
+      <div class="stat-label">Salona</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-number" id="activeCount">0</div>
+      <div class="stat-label">Aktivnih</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-number" id="trialCount">0</div>
+      <div class="stat-label">Trial</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-number" id="blockedCount">0</div>
+      <div class="stat-label">Blokiranih</div>
+    </div>
+  </div>
+
+  <div id="salons">
+    <div class="loading">Učitavanje salona...</div>
+  </div>
+
+  <button class="logout" onclick="logout()">
+    Odjavi se
+  </button>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const SUPABASE_URL =
+    "https://ykkopljgzdcnfbyutxzo.supabase.co";
+
+  const SUPABASE_KEY =
+    "sb_publishable_g0DyVw3GMFgrjZHwSeuvkQ_6x54CKue";
+
+  const supabaseClient = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+  const salonsBox = document.getElementById("salons");
+  const messageBox = document.getElementById("message");
+
+  function showMessage(text, error = false) {
+    messageBox.style.display = "block";
+    messageBox.textContent = text;
+    messageBox.style.color = error ? "#f87171" : "#4ade80";
+  }
+
+  function formatDate(value) {
+    if (!value) return "-";
+
+    const date = new Date(value);
+
+    return date.toLocaleDateString("hr-HR") +
+      " " +
+      date.toLocaleTimeString("hr-HR", {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+  }
+
+  async function checkLogin() {
+    const {
+      data: { session }
+    } = await supabaseClient.auth.getSession();
+
+    if (!session) {
+      window.location.href = "login.html";
+      return false;
+    }
+
+    return true;
+  }
+
+  async function loadSalons() {
+
+    messageBox.style.display = "none";
+
+    const loggedIn = await checkLogin();
+
+    if (!loggedIn) return;
+
+    const { data, error } =
+      await supabaseClient.rpc(
+        "admin_subscription_overview"
+      );
+
+    if (error) {
+      salonsBox.innerHTML = `
+        <div class="card">
+          <b>Ne mogu otvoriti Admin.</b>
+          <p>${error.message}</p>
+          <p>
+            Provjeri da li si prijavljen
+            svojim ADMIN računom.
+          </p>
+        </div>
+      `;
+      return;
+    }
+
+    const salons = data || [];
+
+    document.getElementById("total").textContent =
+      salons.length;
+
+    document.getElementById("activeCount").textContent =
+      salons.filter(x => x.status === "active").length;
+
+    document.getElementById("trialCount").textContent =
+      salons.filter(x => x.status === "trial").length;
+
+    document.getElementById("blockedCount").textContent =
+      salons.filter(
+        x =>
+          x.status === "suspended" ||
+          x.status === "banned"
+      ).length;
+
+    if (salons.length === 0) {
+      salonsBox.innerHTML =
+        '<div class="card">Nema registrovanih salona.</div>';
+      return;
+    }
+
+    salonsBox.innerHTML = "";
+
+    salons.forEach(salon => {
+
+      let statusText = salon.status;
+      let statusClass = "none";
+
+      if (salon.status === "active") {
+        statusText = "Aktivna pretplata";
+        statusClass = "active";
+      }
+
+      if (salon.status === "trial") {
+        statusText = "Probni period";
+        statusClass = "trial";
+      }
+
+      if (salon.status === "suspended") {
+        statusText = "Suspendovan";
+        statusClass = "suspended";
+      }
+
+      if (salon.status === "banned") {
+        statusText = "Banovan";
+        statusClass = "banned";
+      }
+
+      if (salon.status === "bez pretplate") {
+        statusText = "Nema pretplate";
+        statusClass = "none";
+      }
+
+      const card = document.createElement("div");
+      card.className = "card";
+
+      card.innerHTML = `
+        <div class="salon-name">
+          ${escapeHtml(salon.salon_name || "Salon")}
+        </div>
+
+        <div class="email">
+          ${escapeHtml(salon.email || "")}
+        </div>
+
+        <div class="status ${statusClass}">
+          ${statusText}
+        </div>
+
+        <div class="date">
+          Trial do:
+          <b>${formatDate(salon.trial_ends_at)}</b>
+        </div>
+
+        <div class="date">
+          Aktivno do:
+          <b>${formatDate(salon.current_period_end)}</b>
+        </div>
+
+        <div class="buttons">
+
+          <button
+            class="btn30"
+            onclick="changeSubscription(
+              '${salon.salon_id}',
+              'activate_30',
+              '30 dana'
+            )">
+            Aktiviraj 30 dana
+          </button>
+
+          <button
+            class="btn7"
+            onclick="changeSubscription(
+              '${salon.salon_id}',
+              'trial_7',
+              '7 dana'
+            )">
+            Daj 7 dana
+          </button>
+
+          <button
+            class="btnSuspend"
+            onclick="changeSubscription(
+              '${salon.salon_id}',
+              'suspend',
+              'suspendovan'
+            )">
+            Suspenduj
+          </button>
+
+          <button
+            class="btnBan"
+            onclick="changeSubscription(
+              '${salon.salon_id}',
+              'ban',
+              'banovan'
+            )">
+            Ban
+          </button>
+
+        </div>
+      `;
+
+      salonsBox.appendChild(card);
+    });
+  }
+
+  async function changeSubscription(
+    salonId,
+    action,
+    text
+  ) {
+
+    showMessage("Sačekaj...");
+
+    const { error } =
+      await supabaseClient.rpc(
+        "admin_set_subscription",
+        {
+          p_salon_id: salonId,
+          p_action: action
+        }
+      );
+
+    if (error) {
+      showMessage(
+        "Greška: " + error.message,
+        true
+      );
+      return;
+    }
+
+    showMessage(
+      "Uspješno: " + text
+    );
+
+    await loadSalons();
+  }
+
+  function escapeHtml(text) {
+    return String(text)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  async function logout() {
+    await supabaseClient.auth.signOut();
+    window.location.href = "login.html";
+  }
+
+  loadSalons();
+</script>
+
+</body>
+</html>
