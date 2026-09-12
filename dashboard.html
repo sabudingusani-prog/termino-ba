@@ -2,11 +2,29 @@
 <html lang="hr">
 <head>
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
 <title>TERMINO | Moj salon</title>
 
+<!-- TERMINO WEB APP -->
+<link rel="manifest" href="/termino-ba/manifest.json">
+
+<link rel="apple-touch-icon" href="/termino-ba/icon-192.png">
+
+<meta name="theme-color" content="#0b0b0b">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+<meta name="apple-mobile-web-app-title" content="TERMINO">
+
 <style>
-*{box-sizing:border-box}
+
+*{
+box-sizing:border-box;
+}
 
 body{
 margin:0;
@@ -161,7 +179,8 @@ margin:12px 0 7px;
 font-weight:700;
 }
 
-input,select{
+input,
+select{
 width:100%;
 padding:13px;
 border-radius:10px;
@@ -227,7 +246,8 @@ color:#ff9c9c;
 border-color:#7e3333;
 }
 
-.service,.booking{
+.service,
+.booking{
 background:#222;
 border:1px solid #333;
 border-radius:12px;
@@ -338,6 +358,7 @@ height:48px;
 }
 
 }
+
 </style>
 </head>
 
@@ -347,7 +368,9 @@ height:48px;
 
 <div class="topBar">
 
-<div class="logo">TERMINO</div>
+<div class="logo">
+TERMINO
+</div>
 
 <div class="topRight">
 
@@ -363,8 +386,15 @@ onclick="toggleSound(event)">
 <button
 class="bellBtn"
 onclick="toggleNotifications()">
+
 🔔
-<span id="notificationBadge" class="badge">0</span>
+
+<span
+id="notificationBadge"
+class="badge">
+0
+</span>
+
 </button>
 
 </div>
@@ -373,11 +403,16 @@ onclick="toggleNotifications()">
 
 </div>
 
-<div id="notificationPanel" class="notificationPanel">
+
+<div
+id="notificationPanel"
+class="notificationPanel">
 
 <div class="notificationHeader">
 
-<h3>🔔 Obavijesti</h3>
+<h3>
+🔔 Obavijesti
+</h3>
 
 <button
 class="red"
@@ -388,27 +423,48 @@ OBRIŠI SVE
 </div>
 
 <div id="notifications">
-<div class="muted">Učitavanje...</div>
+
+<div class="muted">
+Učitavanje...
 </div>
 
 </div>
 
-<h1>Moj salon</h1>
+</div>
+
+
+<h1>
+Moj salon
+</h1>
+
 
 <div class="card">
 
-<h2>🏪 Podaci salona</h2>
+<h2>
+🏪 Podaci salona
+</h2>
 
-<label>Naziv</label>
+<label>
+Naziv
+</label>
+
 <input id="salonName">
 
-<label>Adresa</label>
+<label>
+Adresa
+</label>
+
 <input id="salonAddress">
 
-<label>Telefon</label>
+<label>
+Telefon
+</label>
+
 <input id="salonPhone">
 
-<button class="gold" onclick="saveSalon()">
+<button
+class="gold"
+onclick="saveSalon()">
 SPREMI PODATKE
 </button>
 
@@ -416,56 +472,123 @@ SPREMI PODATKE
 
 </div>
 
+
 <div class="card">
 
-<h2>🟢🔴 Moja dostupnost</h2>
+<h2>
+🟢🔴 Moja dostupnost
+</h2>
 
 <p class="muted">
+
 Odaberi datum pa klikni vrijeme.
 Zeleno = slobodan.
 Crveno = nedostupan.
+
 </p>
 
-<label>Datum</label>
-<input id="availabilityDate" type="date">
+<label>
+Datum
+</label>
 
-<div id="slots" class="grid"></div>
+<input
+id="availabilityDate"
+type="date">
+
+<div
+id="slots"
+class="grid">
+</div>
 
 <div id="availabilityMsg"></div>
 
 </div>
 
+
 <div class="card">
 
-<h2>✂️ Usluge / Cjenovnik</h2>
+<h2>
+✂️ Usluge / Cjenovnik
+</h2>
 
-<label>Kategorija</label>
+<label>
+Kategorija
+</label>
 
 <select id="serviceCategory">
 
-<option value="">-- Odaberi --</option>
-<option>Muški frizer</option>
-<option>Ženski frizer</option>
-<option>Barber / Brada</option>
-<option>Nokti</option>
-<option>Manikir</option>
-<option>Pedikir</option>
-<option>Obrve i trepavice</option>
-<option>Šminkanje</option>
-<option>Depilacija</option>
-<option>Masaža</option>
-<option>Kozmetički tretmani</option>
+<option value="">
+-- Odaberi --
+</option>
+
+<option>
+Muški frizer
+</option>
+
+<option>
+Ženski frizer
+</option>
+
+<option>
+Barber / Brada
+</option>
+
+<option>
+Nokti
+</option>
+
+<option>
+Manikir
+</option>
+
+<option>
+Pedikir
+</option>
+
+<option>
+Obrve i trepavice
+</option>
+
+<option>
+Šminkanje
+</option>
+
+<option>
+Depilacija
+</option>
+
+<option>
+Masaža
+</option>
+
+<option>
+Kozmetički tretmani
+</option>
 
 </select>
 
-<label>Naziv usluge</label>
+<label>
+Naziv usluge
+</label>
+
 <input id="serviceName">
 
-<label>Cijena (KM)</label>
-<input id="servicePrice" type="number" step="0.01">
+<label>
+Cijena (KM)
+</label>
 
-<label>Trajanje (min)</label>
-<input id="serviceDuration" type="number">
+<input
+id="servicePrice"
+type="number"
+step="0.01">
+
+<label>
+Trajanje (min)
+</label>
+
+<input
+id="serviceDuration"
+type="number">
 
 <button
 id="serviceSaveBtn"
@@ -487,11 +610,14 @@ ODUSTANI
 
 </div>
 
+
 <div class="card">
 
 <div class="bookingTop">
 
-<h2>📅 Termini</h2>
+<h2>
+📅 Termini
+</h2>
 
 <div class="bookingTabs">
 
@@ -514,18 +640,29 @@ onclick="showHistory()">
 </div>
 
 <div id="upcomingBookings">
-<div class="muted">Učitavanje...</div>
+
+<div class="muted">
+Učitavanje...
 </div>
 
-<div id="historyBookings" class="hidden"></div>
+</div>
+
+<div
+id="historyBookings"
+class="hidden">
+</div>
 
 </div>
 
-<button class="gray" onclick="logout()">
+
+<button
+class="gray"
+onclick="logout()">
 ODJAVI SE
 </button>
 
 </div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -544,13 +681,17 @@ SUPABASE_KEY
 );
 
 let currentSalon = null;
+
 let editingServiceId = null;
+
 let currentServices = [];
 
 let audioContext = null;
 
 let soundWanted =
-localStorage.getItem("termino_sound") !== "off";
+localStorage.getItem(
+"termino_sound"
+) !== "off";
 
 let soundUnlocked = false;
 
@@ -560,17 +701,74 @@ let knownNotificationIds =
 new Set();
 
 const $ =
-id => document.getElementById(id);
+id =>
+document.getElementById(id);
 
 
 function escapeHtml(value){
 
-return String(value ?? "")
-.replaceAll("&","&amp;")
-.replaceAll("<","&lt;")
-.replaceAll(">","&gt;")
-.replaceAll('"',"&quot;")
-.replaceAll("'","&#039;");
+return String(
+value ?? ""
+)
+.replaceAll(
+"&",
+"&amp;"
+)
+.replaceAll(
+"<",
+"&lt;"
+)
+.replaceAll(
+">",
+"&gt;"
+)
+.replaceAll(
+'"',
+"&quot;"
+)
+.replaceAll(
+"'",
+"&#039;"
+);
+
+}
+
+
+/* =========================
+   SERVICE WORKER
+========================= */
+
+async function registerServiceWorker(){
+
+if(
+"serviceWorker" in navigator
+){
+
+try{
+
+await navigator.serviceWorker.register(
+"/termino-ba/service-worker.js",
+{
+scope:
+"/termino-ba/"
+}
+);
+
+console.log(
+"TERMINO service worker aktivan."
+);
+
+}
+catch(error){
+
+console.log(
+"Service worker greška:",
+error
+);
+
+}
+
+}
 
 }
 
@@ -588,10 +786,14 @@ if(soundWanted){
 
 btn.textContent =
 soundUnlocked
-? "🔊 ZVUK AKTIVAN"
-: "🔊 ZVUK UKLJUČEN";
+?
+"🔊 ZVUK AKTIVAN"
+:
+"🔊 ZVUK UKLJUČEN";
 
-btn.classList.remove("off");
+btn.classList.remove(
+"off"
+);
 
 }
 else{
@@ -599,7 +801,9 @@ else{
 btn.textContent =
 "🔇 ZVUK ISKLJUČEN";
 
-btn.classList.add("off");
+btn.classList.add(
+"off"
+);
 
 }
 
@@ -623,7 +827,10 @@ window.webkitAudioContext
 
 }
 
-if(audioContext.state === "suspended"){
+if(
+audioContext.state ===
+"suspended"
+){
 
 await audioContext.resume();
 
@@ -647,10 +854,12 @@ audioContext.destination
 oscillator.start();
 
 oscillator.stop(
-audioContext.currentTime + 0.02
+audioContext.currentTime +
+0.02
 );
 
-soundUnlocked = true;
+soundUnlocked =
+true;
 
 updateSoundButton();
 
@@ -697,7 +906,8 @@ localStorage.setItem(
 "off"
 );
 
-soundUnlocked = false;
+soundUnlocked =
+false;
 
 }
 
@@ -737,7 +947,9 @@ oscillator.type =
 oscillator.frequency.value =
 frequency;
 
-oscillator.connect(gain);
+oscillator.connect(
+gain
+);
 
 gain.connect(
 audioContext.destination
@@ -762,10 +974,14 @@ gain.gain.exponentialRampToValueAtTime(
 start + duration
 );
 
-oscillator.start(start);
+oscillator.start(
+start
+);
 
 oscillator.stop(
-start + duration + 0.05
+start +
+duration +
+0.05
 );
 
 }
@@ -807,7 +1023,8 @@ return;
 
 if(
 audioContext &&
-audioContext.state === "suspended"
+audioContext.state ===
+"suspended"
 ){
 
 try{
@@ -821,9 +1038,6 @@ catch(e){}
 
 if(!soundUnlocked)
 return;
-
-
-/* PRVI DING-DONG */
 
 playTone(
 1046,
@@ -839,9 +1053,6 @@ playTone(
 0.62
 );
 
-
-/* DRUGI DING-DONG */
-
 playTone(
 1046,
 1.05,
@@ -856,9 +1067,6 @@ playTone(
 0.62
 );
 
-
-/* TREĆI DING-DONG */
-
 playTone(
 1046,
 2.10,
@@ -872,7 +1080,6 @@ playTone(
 0.55,
 0.62
 );
-
 
 if(
 navigator.vibrate
@@ -891,12 +1098,6 @@ navigator.vibrate([
 }
 
 
-/*
-iPhone dopušta zvuk nakon korisničkog dodira.
-Ako TERMINO pamti da želiš zvuk,
-prvi dodir bilo gdje ga automatski aktivira.
-*/
-
 async function firstUserTouch(){
 
 if(
@@ -909,6 +1110,7 @@ await unlockAudio();
 }
 
 }
+
 
 document.addEventListener(
 "pointerdown",
@@ -939,7 +1141,9 @@ firstUserTouch
 async function user(){
 
 const {
-data:{user}
+data:{
+user
+}
 } =
 await db.auth.getUser();
 
@@ -981,7 +1185,9 @@ data,
 error
 } =
 await db
-.from("notifications")
+.from(
+"notifications"
+)
 .select(`
 id,
 is_read,
@@ -1010,9 +1216,12 @@ ascending:false
 
 if(error){
 
-console.error(error);
+console.error(
+error
+);
 
-$("notifications").innerHTML =
+$("notifications")
+.innerHTML =
 '<div class="muted">Ne mogu učitati obavijesti.</div>';
 
 return;
@@ -1023,20 +1232,19 @@ const notifications =
 data || [];
 
 
-/* PRVO UČITAVANJE:
-   zapamti postojeće obavijesti,
-   ali ne zvoni zbog starih
-*/
+if(
+!notificationsInitialized
+){
 
-if(!notificationsInitialized){
-
-notifications.forEach(n=>{
+notifications.forEach(
+n => {
 
 knownNotificationIds.add(
 n.id
 );
 
-});
+}
+);
 
 notificationsInitialized =
 true;
@@ -1053,16 +1261,19 @@ n.id
 );
 
 if(
-newNotifications.length > 0
+newNotifications.length >
+0
 ){
 
-newNotifications.forEach(n=>{
+newNotifications.forEach(
+n => {
 
 knownNotificationIds.add(
 n.id
 );
 
-});
+}
+);
 
 await ringNewBooking();
 
@@ -1073,31 +1284,38 @@ await loadBookings();
 }
 
 
-/* uvijek zapamti sve ID-eve */
-
-notifications.forEach(n=>{
+notifications.forEach(
+n => {
 
 knownNotificationIds.add(
 n.id
 );
 
-});
+}
+);
 
 
 const unread =
 notifications.filter(
-n => n.is_read !== true
+n =>
+n.is_read !== true
 ).length;
+
 
 const badge =
 $("notificationBadge");
 
-if(unread > 0){
+
+if(
+unread > 0
+){
 
 badge.textContent =
 unread > 99
-? "99+"
-: unread;
+?
+"99+"
+:
+unread;
 
 badge.style.display =
 "flex";
@@ -1111,9 +1329,12 @@ badge.style.display =
 }
 
 
-if(!notifications.length){
+if(
+!notifications.length
+){
 
-$("notifications").innerHTML =
+$("notifications")
+.innerHTML =
 '<div class="muted">Nema obavijesti.</div>';
 
 return;
@@ -1121,8 +1342,10 @@ return;
 }
 
 
-$("notifications").innerHTML =
-notifications.map(n=>{
+$("notifications")
+.innerHTML =
+notifications.map(
+n => {
 
 const b =
 n.bookings || {};
@@ -1133,43 +1356,58 @@ b.services || {};
 const time =
 String(
 b.booking_time || ""
-).slice(0,5);
+)
+.slice(
+0,
+5
+);
 
 return `
+
 <div class="notification ${n.is_read ? "" : "unread"}">
 
 <div class="notificationText">
 
 <strong>
+
 ${n.is_read ? "Rezervacija" : "🆕 Nova rezervacija"}
+
 </strong>
 
 <br><br>
 
 👤 ${escapeHtml(
-b.customer_name || "Klijent"
+b.customer_name ||
+"Klijent"
 )}
 
 <br>
 
 ✂️ ${escapeHtml(
-service.name || "Usluga"
+service.name ||
+"Usluga"
 )}
 
 <br>
 
 📅 ${escapeHtml(
-b.booking_date || ""
+b.booking_date ||
+""
 )}
 
 ${time
-? " u " + escapeHtml(time)
-: ""
+?
+" u " +
+escapeHtml(time)
+:
+""
 }
 
 ${b.phone
 ?
-`<br>📞 ${escapeHtml(b.phone)}`
+`<br>📞 ${escapeHtml(
+b.phone
+)}`
 :
 ""
 }
@@ -1209,9 +1447,12 @@ OBRIŠI
 </div>
 
 </div>
+
 `;
 
-}).join("");
+}
+)
+.join("");
 
 }
 
@@ -1224,16 +1465,27 @@ if(!value)
 return "";
 
 const d =
-new Date(value);
+new Date(
+value
+);
 
 return d.toLocaleString(
 "hr-HR",
 {
-day:"2-digit",
-month:"2-digit",
-year:"numeric",
-hour:"2-digit",
-minute:"2-digit"
+day:
+"2-digit",
+
+month:
+"2-digit",
+
+year:
+"numeric",
+
+hour:
+"2-digit",
+
+minute:
+"2-digit"
 }
 );
 
@@ -1248,12 +1500,15 @@ const panel =
 $("notificationPanel");
 
 const opening =
-panel.style.display !== "block";
+panel.style.display !==
+"block";
 
 panel.style.display =
 opening
-? "block"
-: "none";
+?
+"block"
+:
+"none";
 
 if(opening){
 
@@ -1275,9 +1530,12 @@ const {
 error
 } =
 await db
-.from("notifications")
+.from(
+"notifications"
+)
 .update({
-is_read:true
+is_read:
+true
 })
 .eq(
 "salon_id",
@@ -1290,7 +1548,9 @@ false
 
 if(error){
 
-console.error(error);
+console.error(
+error
+);
 
 return;
 
@@ -1301,15 +1561,20 @@ await loadNotifications();
 }
 
 
-async function readNotification(id){
+async function readNotification(
+id
+){
 
 const {
 error
 } =
 await db
-.from("notifications")
+.from(
+"notifications"
+)
 .update({
-is_read:true
+is_read:
+true
 })
 .eq(
 "id",
@@ -1332,7 +1597,9 @@ await loadNotifications();
 }
 
 
-async function deleteNotification(id){
+async function deleteNotification(
+id
+){
 
 const yes =
 confirm(
@@ -1346,7 +1613,9 @@ const {
 error
 } =
 await db
-.from("notifications")
+.from(
+"notifications"
+)
 .delete()
 .eq(
 "id",
@@ -1390,7 +1659,9 @@ const {
 error
 } =
 await db
-.from("notifications")
+.from(
+"notifications"
+)
 .delete()
 .eq(
 "salon_id",
@@ -1433,8 +1704,12 @@ data,
 error
 } =
 await db
-.from("salons")
-.select("*")
+.from(
+"salons"
+)
+.select(
+"*"
+)
 .eq(
 "owner_id",
 u.id
@@ -1443,7 +1718,9 @@ u.id
 
 if(error){
 
-console.error(error);
+console.error(
+error
+);
 
 return null;
 
@@ -1493,16 +1770,20 @@ $("salonPhone")
 .value
 .trim();
 
+
 if(!name){
 
-$("salonMsg").textContent =
+$("salonMsg")
+.textContent =
 "Upiši naziv salona.";
 
 return;
 
 }
 
+
 let error;
+
 
 if(currentSalon){
 
@@ -1510,7 +1791,9 @@ if(currentSalon){
 error
 } =
 await db
-.from("salons")
+.from(
+"salons"
+)
 .update({
 name,
 address,
@@ -1528,9 +1811,13 @@ else{
 error
 } =
 await db
-.from("salons")
+.from(
+"salons"
+)
 .insert({
-owner_id:u.id,
+owner_id:
+u.id,
+
 name,
 address,
 phone
@@ -1538,9 +1825,11 @@ phone
 
 }
 
+
 if(error){
 
-$("salonMsg").textContent =
+$("salonMsg")
+.textContent =
 "Greška: " +
 error.message;
 
@@ -1548,13 +1837,20 @@ return;
 
 }
 
-$("salonMsg").textContent =
+
+$("salonMsg")
+.textContent =
 "✅ Spremljeno.";
 
+
 await loadSalon();
+
 await loadServices();
+
 await loadBookings();
+
 await loadSlots();
+
 await loadNotifications();
 
 }
@@ -1564,7 +1860,9 @@ await loadNotifications();
    DOSTUPNOST
 ========================= */
 
-const times = [];
+const times =
+[];
+
 
 for(
 let h = 8;
@@ -1573,7 +1871,12 @@ h++
 ){
 
 for(
-let m of [0,15,30,45]
+let m of [
+0,
+15,
+30,
+45
+]
 ){
 
 if(
@@ -1583,14 +1886,20 @@ m > 0
 continue;
 
 times.push(
-String(h).padStart(
+String(
+h
+)
+.padStart(
 2,
 "0"
 )
 +
 ":"
 +
-String(m).padStart(
+String(
+m
+)
+.padStart(
 2,
 "0"
 )
@@ -1613,12 +1922,15 @@ $("availabilityDate")
 if(!date)
 return;
 
+
 const {
 data,
 error
 } =
 await db
-.from("availability_slots")
+.from(
+"availability_slots"
+)
 .select(
 "slot_time,is_available"
 )
@@ -1631,6 +1943,7 @@ currentSalon.id
 date
 );
 
+
 if(error){
 
 $("availabilityMsg")
@@ -1642,27 +1955,39 @@ return;
 
 }
 
-const map = {};
 
-(data || [])
-.forEach(x=>{
+const map =
+{};
+
+
+(
+data || []
+)
+.forEach(
+x => {
 
 map[
 String(
 x.slot_time
-).slice(
+)
+.slice(
 0,
 5
 )
 ] =
 x.is_available;
 
-});
+}
+);
 
-$("slots").innerHTML =
+
+$("slots")
+.innerHTML =
 "";
 
-times.forEach(t=>{
+
+times.forEach(
+t => {
 
 const b =
 document.createElement(
@@ -1695,9 +2020,12 @@ t,
 );
 
 $("slots")
-.appendChild(b);
+.appendChild(
+b
+);
 
-});
+}
+);
 
 }
 
@@ -1715,7 +2043,9 @@ const {
 error
 } =
 await db
-.from("availability_slots")
+.from(
+"availability_slots"
+)
 .upsert(
 {
 salon_id:
@@ -1736,6 +2066,7 @@ onConflict:
 }
 );
 
+
 if(error){
 
 $("availabilityMsg")
@@ -1747,6 +2078,7 @@ return;
 
 }
 
+
 $("availabilityMsg")
 .textContent =
 isAvailable
@@ -1754,6 +2086,7 @@ isAvailable
 "🟢 Označeno slobodno."
 :
 "🔴 Označeno nedostupno.";
+
 
 await loadSlots();
 
@@ -1773,16 +2106,20 @@ loadSlots
 
 function clearServiceForm(){
 
-$("serviceCategory").value =
+$("serviceCategory")
+.value =
 "";
 
-$("serviceName").value =
+$("serviceName")
+.value =
 "";
 
-$("servicePrice").value =
+$("servicePrice")
+.value =
 "";
 
-$("serviceDuration").value =
+$("serviceDuration")
+.value =
 "";
 
 }
@@ -1844,10 +2181,13 @@ $("serviceDuration")
 10
 );
 
+
 if(
 !category ||
 !name ||
-!Number.isFinite(price) ||
+!Number.isFinite(
+price
+) ||
 !duration
 ){
 
@@ -1859,17 +2199,21 @@ return;
 
 }
 
+
 if(editingServiceId){
 
 const {
 error
 } =
 await db
-.from("services")
+.from(
+"services"
+)
 .update({
 category,
 name,
 price,
+
 duration_minutes:
 duration
 })
@@ -1882,6 +2226,7 @@ editingServiceId
 currentSalon.id
 );
 
+
 if(error){
 
 $("serviceMsg")
@@ -1893,22 +2238,28 @@ return;
 
 }
 
+
 $("serviceMsg")
 .textContent =
 "✅ Usluga izmijenjena.";
 
+
 editingServiceId =
 null;
 
+
 clearServiceForm();
+
 
 $("serviceSaveBtn")
 .textContent =
 "DODAJ USLUGU";
 
+
 $("cancelEdit")
 .style.display =
 "none";
+
 
 await loadServices();
 
@@ -1921,7 +2272,9 @@ const {
 error
 } =
 await db
-.from("services")
+.from(
+"services"
+)
 .insert({
 salon_id:
 currentSalon.id,
@@ -1934,6 +2287,7 @@ duration_minutes:
 duration
 });
 
+
 if(error){
 
 $("serviceMsg")
@@ -1945,53 +2299,68 @@ return;
 
 }
 
+
 $("serviceMsg")
 .textContent =
 "✅ Usluga dodana.";
 
+
 clearServiceForm();
+
 
 await loadServices();
 
 }
 
 
-function editService(id){
+function editService(
+id
+){
 
 const service =
 currentServices.find(
-x => x.id === id
+x =>
+x.id === id
 );
 
 if(!service)
 return;
 
+
 editingServiceId =
 service.id;
+
 
 $("serviceCategory")
 .value =
 service.category || "";
 
+
 $("serviceName")
 .value =
 service.name || "";
+
 
 $("servicePrice")
 .value =
 service.price ?? "";
 
+
 $("serviceDuration")
 .value =
-service.duration_minutes ?? "";
+service.duration_minutes ??
+"";
+
 
 $("serviceSaveBtn")
 .textContent =
 "SPREMI IZMJENE";
 
+
 $("cancelEdit")
 .style.display =
 "inline-block";
+
 
 $("serviceMsg")
 .textContent =
@@ -2001,15 +2370,19 @@ service.name;
 }
 
 
-async function deleteService(id){
+async function deleteService(
+id
+){
 
 const service =
 currentServices.find(
-x => x.id === id
+x =>
+x.id === id
 );
 
 if(!service)
 return;
+
 
 const yes =
 confirm(
@@ -2018,14 +2391,18 @@ service.name +
 '"?'
 );
 
+
 if(!yes)
 return;
+
 
 const {
 error
 } =
 await db
-.from("services")
+.from(
+"services"
+)
 .delete()
 .eq(
 "id",
@@ -2035,6 +2412,7 @@ id
 "salon_id",
 currentSalon.id
 );
+
 
 if(error){
 
@@ -2047,6 +2425,7 @@ return;
 
 }
 
+
 if(
 editingServiceId === id
 ){
@@ -2055,9 +2434,11 @@ cancelServiceEdit();
 
 }
 
+
 $("serviceMsg")
 .textContent =
 "🗑️ Usluga izbrisana.";
+
 
 await loadServices();
 
@@ -2069,13 +2450,18 @@ async function loadServices(){
 if(!currentSalon)
 return;
 
+
 const {
 data,
 error
 } =
 await db
-.from("services")
-.select("*")
+.from(
+"services"
+)
+.select(
+"*"
+)
 .eq(
 "salon_id",
 currentSalon.id
@@ -2086,6 +2472,7 @@ currentSalon.id
 .order(
 "name"
 );
+
 
 if(error){
 
@@ -2098,12 +2485,15 @@ return;
 
 }
 
+
 currentServices =
 data || [];
+
 
 $("services")
 .innerHTML =
 "";
+
 
 if(
 !currentServices.length
@@ -2117,7 +2507,9 @@ return;
 
 }
 
-currentServices.forEach(s=>{
+
+currentServices.forEach(
+s => {
 
 const d =
 document.createElement(
@@ -2129,14 +2521,20 @@ d.className =
 
 d.innerHTML =
 `
+
 <b>
+
 ${escapeHtml(
-s.category || "Ostalo"
+s.category ||
+"Ostalo"
 )}
+
 —
+
 ${escapeHtml(
 s.name
 )}
+
 </b>
 
 <br><br>
@@ -2166,12 +2564,16 @@ onclick="deleteService('${s.id}')">
 </button>
 
 </div>
+
 `;
 
 $("services")
-.appendChild(d);
+.appendChild(
+d
+);
 
-});
+}
+);
 
 }
 
@@ -2180,7 +2582,9 @@ $("services")
    REZERVACIJE
 ========================= */
 
-function bookingDateTime(b){
+function bookingDateTime(
+b
+){
 
 const time =
 String(
@@ -2203,7 +2607,7 @@ time
 
 function bookingHtml(
 b,
-old=false
+old = false
 ){
 
 const s =
@@ -2212,74 +2616,96 @@ b.services || {};
 let status =
 "";
 
+
 if(b.status){
 
 status =
 `
+
 <br>
+
 <span class="statusText">
+
 Status:
 ${escapeHtml(
 b.status
 )}
+
 </span>
+
 `;
 
 }
 
+
 return `
+
 <div class="booking ${old ? "old" : ""}">
 
 <b>
+
 ${escapeHtml(
 b.booking_date
 )}
+
 ·
+
 ${escapeHtml(
 String(
 b.booking_time
-).slice(
+)
+.slice(
 0,
 5
 )
 )}
+
 </b>
 
 <br><br>
 
 ✂️
+
 ${escapeHtml(
-s.category || ""
+s.category ||
+""
 )}
 
 ${s.category && s.name ? " — " : ""}
 
 ${escapeHtml(
-s.name || ""
+s.name ||
+""
 )}
 
 <br>
 
 👤 ${escapeHtml(
-b.customer_name || ""
+b.customer_name ||
+""
 )}
 
 <br>
 
 📞 ${escapeHtml(
-b.phone || ""
+b.phone ||
+""
 )}
 
 ${b.email
 ?
-`<br>✉️ ${escapeHtml(b.email)}`
+`<br>✉️ ${escapeHtml(
+b.email
+)}`
 :
 ""
 }
 
 ${b.note
 ?
-`<br>📝 ${escapeHtml(b.note)}`
+`<br>📝 ${escapeHtml(
+b.note
+)}`
 :
 ""
 }
@@ -2287,6 +2713,7 @@ ${b.note
 ${status}
 
 </div>
+
 `;
 
 }
@@ -2297,13 +2724,17 @@ async function loadBookings(){
 if(!currentSalon)
 return;
 
+
 const {
 data,
 error
 } =
 await db
-.from("bookings")
+.from(
+"bookings"
+)
 .select(`
+
 customer_name,
 phone,
 email,
@@ -2311,11 +2742,13 @@ booking_date,
 booking_time,
 status,
 note,
+
 services(
 name,
 category,
 price
 )
+
 `)
 .eq(
 "salon_id",
@@ -2327,6 +2760,7 @@ currentSalon.id
 .order(
 "booking_time"
 );
+
 
 if(error){
 
@@ -2344,35 +2778,58 @@ return;
 
 }
 
+
 const now =
 new Date();
 
+
 const all =
 data || [];
+
 
 const upcoming =
 all
 .filter(
 b =>
-bookingDateTime(b) >= now
+bookingDateTime(
+b
+) >= now
 )
 .sort(
-(a,b) =>
-bookingDateTime(a) -
-bookingDateTime(b)
+(
+a,
+b
+) =>
+bookingDateTime(
+a
+) -
+bookingDateTime(
+b
+)
 );
+
 
 const history =
 all
 .filter(
 b =>
-bookingDateTime(b) < now
+bookingDateTime(
+b
+) < now
 )
 .sort(
-(a,b) =>
-bookingDateTime(b) -
-bookingDateTime(a)
+(
+a,
+b
+) =>
+bookingDateTime(
+b
+) -
+bookingDateTime(
+a
+)
 );
+
 
 if(
 upcoming.length
@@ -2396,9 +2853,13 @@ else{
 $("upcomingBookings")
 .innerHTML =
 `
+
 <div class="muted">
+
 Trenutno nema novih termina.
+
 </div>
+
 `;
 
 }
@@ -2426,9 +2887,13 @@ else{
 $("historyBookings")
 .innerHTML =
 `
+
 <div class="muted">
+
 Još nema starih termina.
+
 </div>
+
 `;
 
 }
@@ -2500,22 +2965,30 @@ $("upcomingBtn")
 
 async function init(){
 
+await registerServiceWorker();
+
+
 updateSoundButton();
+
 
 const d =
 new Date();
 
+
 const year =
 d.getFullYear();
 
+
 const month =
 String(
-d.getMonth()+1
+d.getMonth() +
+1
 )
 .padStart(
 2,
 "0"
 );
+
 
 const day =
 String(
@@ -2526,24 +2999,25 @@ d.getDate()
 "0"
 );
 
+
 $("availabilityDate")
 .value =
 `${year}-${month}-${day}`;
 
+
 await loadSalon();
+
 await loadSlots();
+
 await loadServices();
+
 await loadBookings();
+
 await loadNotifications();
 
 
-/*
-Svake 5 sekundi provjeri
-da li je stigla NOVA notifikacija.
-*/
-
 setInterval(
-async ()=>{
+async () => {
 
 await loadNotifications();
 
@@ -2552,15 +3026,9 @@ await loadNotifications();
 );
 
 
-/*
-Ako se vratiš iz drugog taba
-ili druge aplikacije,
-odmah provjeri rezervacije.
-*/
-
 document.addEventListener(
 "visibilitychange",
-async ()=>{
+async () => {
 
 if(
 document.visibilityState ===
@@ -2568,6 +3036,7 @@ document.visibilityState ===
 ){
 
 await loadNotifications();
+
 await loadBookings();
 
 }
@@ -2576,6 +3045,7 @@ await loadBookings();
 );
 
 }
+
 
 init();
 
