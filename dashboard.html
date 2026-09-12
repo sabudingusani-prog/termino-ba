@@ -359,10 +359,10 @@ ODJAVI SE
 <script>
 
 const SUPABASE_URL =
-"https://ykkopljgzdcnfbyutxzo.supabase.co";
+"https://chpevcwwrxnsexfzovds.supabase.co";
 
 const SUPABASE_KEY =
-"sb_publishable_g0DyVw3GMFgrjZHwSeuvkQ_6x54CKue";
+"sb_publishable_W_zut9V5NDTHcSIeuE4J8g_4Rq_cBoG";
 
 const db =
 supabase.createClient(
@@ -775,8 +775,6 @@ return;
 }
 
 
-/* IZMJENA POSTOJEĆE USLUGE */
-
 if(editingServiceId){
 
 const {
@@ -821,8 +819,6 @@ return;
 
 }
 
-
-/* NOVA USLUGA */
 
 const {
 error
@@ -1117,12 +1113,12 @@ b.customer_name || ""
 <br>
 
 📞 ${escapeHtml(
-b.customer_phone || ""
+b.phone || ""
 )}
 
-${b.customer_email
+${b.email
 ?
-`<br>✉️ ${escapeHtml(b.customer_email)}`
+`<br>✉️ ${escapeHtml(b.email)}`
 :
 ""
 }
@@ -1155,8 +1151,8 @@ await db
 .from("bookings")
 .select(`
 customer_name,
-customer_phone,
-customer_email,
+phone,
+email,
 booking_date,
 booking_time,
 status,
