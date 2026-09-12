@@ -167,7 +167,6 @@ button{
     🟢 Slobodno &nbsp; • &nbsp; 🔴 Zauzeto
   </p>
 
-
   <div class="card">
 
     <label>Salon</label>
@@ -178,7 +177,6 @@ button{
       </option>
     </select>
 
-
     <label>Usluga</label>
 
     <select id="service" disabled>
@@ -187,14 +185,12 @@ button{
       </option>
     </select>
 
-
     <label>Datum</label>
 
     <input
       id="date"
       type="date"
     >
-
 
     <label>Termini</label>
 
@@ -211,7 +207,6 @@ button{
 
   </div>
 
-
   <div class="card">
 
     <label>Ime i prezime</label>
@@ -223,7 +218,6 @@ button{
       autocomplete="name"
     >
 
-
     <label>Telefon</label>
 
     <input
@@ -232,7 +226,6 @@ button{
       placeholder="Broj telefona"
       autocomplete="tel"
     >
-
 
     <label>
       Email
@@ -248,7 +241,6 @@ button{
       autocomplete="email"
     >
 
-
     <label>
       Napomena
       <span class="optional">
@@ -261,11 +253,9 @@ button{
       placeholder="Nije obavezno"
     ></textarea>
 
-
     <button id="book">
       REZERVIŠI TERMIN
     </button>
-
 
     <div id="msg"></div>
 
@@ -275,30 +265,26 @@ button{
 
 </div>
 
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
 const db = supabase.createClient(
-  "https://ykkopljgzdcnfbyutxzo.supabase.co",
-  "sb_publishable_g0DyVw3GMFgrjZHwSeuvkQ_6x54CKue"
+  "https://chpevcwwrxnsexfzovds.supabase.co",
+  "sb_publishable_W_zut9V5NDTHcSIeuE4J8g_4Rq_cBoG"
 );
 
 const $ = id =>
   document.getElementById(id);
-
 
 const preselectedSalon =
   new URLSearchParams(
     window.location.search
   ).get("salon");
 
-
 let serviceMap = {};
 
 let loadingTimes = false;
-
 
 /* =========================
    DATUM
@@ -316,7 +302,6 @@ const localToday =
 
 $("date").min =
   localToday;
-
 
 /* =========================
    PORUKA
@@ -356,7 +341,6 @@ function showMessage(
 
 }
 
-
 /* =========================
    SALONI
 ========================= */
@@ -372,7 +356,6 @@ async function loadSalons(){
     .select("id,name")
     .order("name");
 
-
   if(error){
 
     showMessage(
@@ -383,7 +366,6 @@ async function loadSalons(){
     return;
 
   }
-
 
   (data || [])
   .forEach(salon=>{
@@ -404,7 +386,6 @@ async function loadSalons(){
 
   });
 
-
   if(preselectedSalon){
 
     $("salon").value =
@@ -416,7 +397,6 @@ async function loadSalons(){
 
 }
 
-
 /* =========================
    USLUGE
 ========================= */
@@ -426,20 +406,16 @@ async function loadServices(){
   const salonId =
     $("salon").value;
 
-
   $("service").innerHTML =
     '<option value="">-- Odaberi uslugu --</option>';
 
-
   $("service").disabled =
     !salonId;
-
 
   serviceMap = {};
 
   $("selectedTime").value =
     "";
-
 
   if(!salonId){
 
@@ -449,7 +425,6 @@ async function loadServices(){
     return;
 
   }
-
 
   const {
     data,
@@ -467,7 +442,6 @@ async function loadServices(){
     .order("category")
     .order("name");
 
-
   if(error){
 
     showMessage(
@@ -479,7 +453,6 @@ async function loadServices(){
 
   }
 
-
   (data || [])
   .forEach(service=>{
 
@@ -488,16 +461,13 @@ async function loadServices(){
     ] =
       service;
 
-
     const option =
       document.createElement(
         "option"
       );
 
-
     option.value =
       service.id;
-
 
     option.textContent =
       `${service.category || ""}
@@ -505,17 +475,14 @@ async function loadServices(){
       — ${service.price} €
       — ${service.duration_minutes} min`;
 
-
     $("service")
       .appendChild(option);
 
   });
 
-
   await loadTimes();
 
 }
-
 
 /* =========================
    PRIKAZ TERMINA
@@ -526,24 +493,20 @@ function renderTimes(slots){
   const grid =
     $("timeGrid");
 
-
   grid.innerHTML =
     "";
-
 
   $("selectedTime").value =
     "";
 
-
   if(!slots || !slots.length){
 
     grid.innerHTML =
-      '<div class="muted">Frizer nema označenih termina za ovaj datum.</div>';
+      '<div class="muted">Salon nema označenih termina za ovaj datum.</div>';
 
     return;
 
   }
-
 
   slots.forEach(slot=>{
 
@@ -552,20 +515,16 @@ function renderTimes(slots){
         slot.slot_time
       ).slice(0,5);
 
-
     const free =
       slot.is_free === true;
-
 
     const button =
       document.createElement(
         "button"
       );
 
-
     button.type =
       "button";
-
 
     button.className =
       "timeBtn "
@@ -576,7 +535,6 @@ function renderTimes(slots){
         : "busy"
       );
 
-
     button.textContent =
       (
         free
@@ -586,10 +544,8 @@ function renderTimes(slots){
       +
       time;
 
-
     button.disabled =
       !free;
-
 
     if(free){
 
@@ -607,11 +563,9 @@ function renderTimes(slots){
             )
           );
 
-
           button.classList.add(
             "selected"
           );
-
 
           $("selectedTime").value =
             time;
@@ -621,7 +575,6 @@ function renderTimes(slots){
 
     }
 
-
     grid.appendChild(
       button
     );
@@ -629,7 +582,6 @@ function renderTimes(slots){
   });
 
 }
-
 
 /* =========================
    TERMINI IZ SUPABASE
@@ -640,22 +592,17 @@ async function loadTimes(){
   if(loadingTimes)
     return;
 
-
   const salonId =
     $("salon").value;
-
 
   const serviceId =
     $("service").value;
 
-
   const bookingDate =
     $("date").value;
 
-
   $("selectedTime").value =
     "";
-
 
   if(
     !salonId ||
@@ -670,14 +617,11 @@ async function loadTimes(){
 
   }
 
-
   loadingTimes =
     true;
 
-
   $("timeGrid").innerHTML =
     '<div class="muted">Provjeravam termine...</div>';
-
 
   const {
     data,
@@ -699,10 +643,8 @@ async function loadTimes(){
     }
   );
 
-
   loadingTimes =
     false;
-
 
   if(error){
 
@@ -710,7 +652,6 @@ async function loadTimes(){
 
     $("timeGrid").innerHTML =
       '<div class="muted">Nije moguće učitati termine.</div>';
-
 
     showMessage(
       "Greška pri provjeri termina: "
@@ -723,13 +664,11 @@ async function loadTimes(){
 
   }
 
-
   renderTimes(
     data || []
   );
 
 }
-
 
 /* =========================
    PROMJENE
@@ -750,7 +689,6 @@ $("salon")
   }
 );
 
-
 $("service")
 .addEventListener(
   "change",
@@ -765,7 +703,6 @@ $("service")
 
   }
 );
-
 
 $("date")
 .addEventListener(
@@ -782,7 +719,6 @@ $("date")
   }
 );
 
-
 /* =========================
    REZERVACIJA
 ========================= */
@@ -792,38 +728,29 @@ $("book")
   "click",
   async()=>{
 
-
     const salonId =
       $("salon").value;
-
 
     const serviceId =
       $("service").value;
 
-
     const bookingDate =
       $("date").value;
-
 
     const bookingTime =
       $("selectedTime").value;
 
-
     const customerName =
       $("name").value.trim();
-
 
     const customerPhone =
       $("phone").value.trim();
 
-
     const customerEmail =
       $("email").value.trim();
 
-
     const note =
       $("note").value.trim();
-
 
     if(
       !salonId ||
@@ -843,19 +770,15 @@ $("book")
 
     }
 
-
     $("book").disabled =
       true;
-
 
     $("book").textContent =
       "REZERVIŠEM...";
 
-
     showMessage(
       "Provjeravam da li je termin još slobodan..."
     );
-
 
     const {
       data,
@@ -892,14 +815,11 @@ $("book")
       }
     );
 
-
     $("book").disabled =
       false;
 
-
     $("book").textContent =
       "REZERVIŠI TERMIN";
-
 
     if(error){
 
@@ -910,26 +830,21 @@ $("book")
         "error"
       );
 
-
       await loadTimes();
 
       return;
 
     }
 
-
     await loadTimes();
-
 
     showMessage(
       "✅ Termin je uspješno rezervisan.",
       "success"
     );
 
-
     const token =
       data?.cancel_token;
-
 
     if(token){
 
@@ -946,7 +861,6 @@ $("book")
         encodeURIComponent(
           token
         );
-
 
       $("cancelInfo").innerHTML =
         `
@@ -974,7 +888,6 @@ $("book")
 
   }
 );
-
 
 /* =========================
    START
