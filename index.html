@@ -3,12 +3,87 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Salon Booking</title>
+  <title>TERMINO BA</title>
+
+  <style>
+    *{
+      box-sizing:border-box;
+    }
+
+    body{
+      margin:0;
+      background:#0b0b0b;
+      color:#fff;
+      font-family:Arial,sans-serif;
+      padding:20px;
+    }
+
+    .wrap{
+      max-width:720px;
+      margin:20px auto;
+    }
+
+    .logo{
+      color:#d8ad55;
+      font-size:40px;
+      font-weight:900;
+    }
+
+    h1{
+      margin-bottom:8px;
+    }
+
+    .muted{
+      color:#aaa;
+    }
+
+    input{
+      width:100%;
+      padding:14px;
+      border-radius:11px;
+      border:1px solid #444;
+      background:#222;
+      color:#fff;
+      font-size:16px;
+      margin:12px 0 18px;
+    }
+
+    .salon{
+      background:#151515;
+      border:1px solid #333;
+      border-radius:16px;
+      padding:18px;
+      margin:12px 0;
+    }
+
+    .salon h3{
+      margin:0 0 10px;
+    }
+
+    .btn{
+      display:inline-block;
+      background:#d8ad55;
+      color:#111;
+      text-decoration:none;
+      font-weight:900;
+      padding:12px 16px;
+      border-radius:10px;
+      margin-top:8px;
+    }
+  </style>
 </head>
 
 <body>
-  <h1>Salon Booking</h1>
-  <p>Rezerviraj svoj termin brzo i jednostavno.</p>
+
+<div class="wrap">
+
+  <div class="logo">TERMINO</div>
+
+  <h1>Online rezervacije za salone</h1>
+
+  <p class="muted">
+    Pronađi salon i rezerviši termin brzo i jednostavno.
+  </p>
 
   <h2>Pronađi salon</h2>
 
@@ -22,42 +97,137 @@
     <p>Učitavanje salona...</p>
   </div>
 
-  <script>
-const SUPABASE_URL = "https://ykkopljgzdcnfbyutxzo.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_g0DyVw3GMFgrjZHwSeuvkQ_6x54CKue";
+</div>
 
-    async function loadSalons() {
-      const response = await fetch(
-        SUPABASE_URL + "/rest/v1/salons?select=*",
-        {
-          headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: "Bearer " + SUPABASE_KEY
-          }
+<script>
+
+const SUPABASE_URL =
+  "https://chpevcwwrxnsexfzovds.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_W_zut9V5NDTHcSIeuE4J8g_4Rq_cBoG";
+
+let allSalons = [];
+
+function escapeHtml(value){
+  return String(value ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function renderSalons(salons){
+
+  const container =
+    document.getElementById("salons");
+
+  if(!salons.length){
+    container.innerHTML =
+      "<p>Trenutno nema salona.</p>";
+    return;
+  }
+
+  container.innerHTML =
+    salons.map(salon => `
+      <div class="salon">
+
+        <h3>
+          ${escapeHtml(salon.name || "Salon")}
+        </h3>
+
+        ${
+          salon.address
+          ?
+          `<div class="muted">
+            📍 ${escapeHtml(salon.address)}
+          </div>`
+          :
+          ""
         }
+
+        ${
+          salon.phone
+          ?
+          `<div class="muted">
+            📞 ${escapeHtml(salon.phone)}
+          </div>`
+          :
+          ""
+        }
+
+        <a
+          class="btn"
+          href="booking.html?salon=${encodeURIComponent(salon.id)}"
+        >
+          REZERVIŠI TERMIN
+        </a>
+
+      </div>
+    `).join("");
+}
+
+async function loadSalons(){
+
+  const response =
+    await fetch(
+      SUPABASE_URL +
+      "/rest/v1/salons?select=id,name,address,phone&order=name.asc",
+      {
+        headers:{
+          apikey:SUPABASE_KEY,
+          Authorization:
+            "Bearer " + SUPABASE_KEY
+        }
+      }
+    );
+
+  const salons =
+    await response.json();
+
+  const container =
+    document.getElementById("salons");
+
+  if(!response.ok){
+
+    container.innerHTML =
+      "<p>Greška pri učitavanju salona.</p>";
+
+    return;
+  }
+
+  allSalons =
+    salons || [];
+
+  renderSalons(allSalons);
+}
+
+document
+.getElementById("search")
+.addEventListener(
+  "input",
+  function(){
+
+    const q =
+      this.value
+      .trim()
+      .toLowerCase();
+
+    const filtered =
+      allSalons.filter(salon =>
+        String(salon.name || "")
+        .toLowerCase()
+        .includes(q)
       );
 
-      const salons = await response.json();
-      const container = document.getElementById("salons");
+    renderSalons(filtered);
+  }
+);
 
-      if (!response.ok) {
-        container.innerHTML = "<p>Greška pri učitavanju salona.</p>";
-        return;
-      }
+loadSalons();
 
-      if (salons.length === 0) {
-        container.innerHTML = "<p>Trenutno nema salona.</p>";
-        return;
-      }
+</script>
 
-      container.innerHTML = salons.map(salon =>
-        `<div>
-          <h3>${salon.name || "Salon"}</h3>
-        </div>`
-      ).join("");
-    }
-
-    loadSalons();
-  </script>
 </body>
 </html>
