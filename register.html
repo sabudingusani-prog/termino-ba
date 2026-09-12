@@ -183,8 +183,8 @@
 
 
 <script>
-const SUPABASE_URL = "https://ykkopljgzdcnfbyutxzo.supabase.co";
-const SUPABASE_KEY = "sb_publishable_g0DyVw3GMFgrjZHwSeuvkQ_6x54CKue";
+const SUPABASE_URL = "https://chpevcwwrxnsexfzovds.supabase.co";
+const SUPABASE_KEY = "sb_publishable_W_zut9V5NDTHcSIeuE4J8g_4Rq_cBoG";
 
 const form = document.getElementById("registerForm");
 const button = document.getElementById("registerButton");
@@ -279,11 +279,6 @@ form.addEventListener("submit", async function(event) {
     const session = signupData.session;
 
 
-    /*
-      Ako Supabase odmah prijavi korisnika,
-      pokušavamo odmah napraviti salon.
-    */
-
     if (
       user &&
       user.id &&
@@ -293,7 +288,7 @@ form.addEventListener("submit", async function(event) {
 
       try {
 
-        const salonResponse = await fetch(
+        await fetch(
           SUPABASE_URL + "/rest/v1/salons",
           {
             method: "POST",
@@ -312,11 +307,6 @@ form.addEventListener("submit", async function(event) {
             })
           }
         );
-
-        /*
-          Ako salon već postoji, ne prekidamo registraciju.
-          Dashboard će ga svakako učitati.
-        */
 
       } catch (salonError) {
         console.log("Salon će biti kreiran nakon prijave.");
@@ -348,10 +338,6 @@ form.addEventListener("submit", async function(event) {
       return;
     }
 
-
-    /*
-      Ako Supabase zahtijeva potvrdu emaila.
-    */
 
     showMessage(
       "✅ Račun je kreiran. Ako dobijete email za potvrdu, potvrdite ga, a zatim se prijavite.",
