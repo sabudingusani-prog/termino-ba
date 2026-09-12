@@ -34,6 +34,27 @@ font-size:40px;
 font-weight:900;
 }
 
+.topRight{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.soundBtn{
+background:#d8ad55;
+color:#111;
+border:0;
+border-radius:12px;
+padding:11px 12px;
+font-size:13px;
+font-weight:900;
+}
+
+.soundBtn.on{
+background:#1f6f3b;
+color:#fff;
+}
+
 .notificationWrap{
 position:relative;
 }
@@ -303,7 +324,12 @@ flex-direction:column;
 }
 
 .logo{
-font-size:36px;
+font-size:32px;
+}
+
+.soundBtn{
+font-size:11px;
+padding:10px 8px;
 }
 
 }
@@ -318,6 +344,15 @@ font-size:36px;
 
 <div class="logo">TERMINO</div>
 
+<div class="topRight">
+
+<button
+id="soundBtn"
+class="soundBtn"
+onclick="enableSound()">
+🔊 UKLJUČI ZVUK
+</button>
+
 <div class="notificationWrap">
 
 <button
@@ -326,6 +361,8 @@ onclick="toggleNotifications()">
 🔔
 <span id="notificationBadge" class="badge">0</span>
 </button>
+
+</div>
 
 </div>
 
@@ -353,7 +390,6 @@ OBRIŠI SVE
 
 <h1>Moj salon</h1>
 
-
 <div class="card">
 
 <h2>🏪 Podaci salona</h2>
@@ -375,7 +411,6 @@ SPREMI PODATKE
 
 </div>
 
-
 <div class="card">
 
 <h2>🟢🔴 Moja dostupnost</h2>
@@ -394,7 +429,6 @@ Crveno = nedostupan.
 <div id="availabilityMsg"></div>
 
 </div>
-
 
 <div class="card">
 
@@ -448,7 +482,6 @@ ODUSTANI
 
 </div>
 
-
 <div class="card">
 
 <div class="bookingTop">
@@ -483,13 +516,11 @@ onclick="showHistory()">
 
 </div>
 
-
 <button class="gray" onclick="logout()">
 ODJAVI SE
 </button>
 
 </div>
-
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -511,9 +542,13 @@ let currentSalon = null;
 let editingServiceId = null;
 let currentServices = [];
 
+let audioContext = null;
+let soundEnabled = false;
+let notificationsInitialized = false;
+let lastUnreadCount = 0;
+
 const $ =
 id => document.getElementById(id);
-
 
 function escapeHtml(value){
 
@@ -526,6 +561,141 @@ return String(value ?? "")
 
 }
 
+/* =========================
+   ZVUK
+========================= */
+
+async function enableSound(){
+
+try{
+
+if(!audioContext){
+
+audioContext =
+new (
+window.AudioContext ||
+window.webkitAudioContext
+)();
+
+}
+
+if(audioContext.state === "suspended"){
+
+await audioContext.resume();
+
+}
+
+soundEnabled = true;
+
+$("soundBtn").textContent =
+"🔊 ZVUK UKLJUČEN";
+
+$("soundBtn").classList.add("on");
+
+/* kratki test zvuka */
+playTone(880,0,0.15,0.25);
+
+setTimeout(()=>{
+playTone(660,0,0.22,0.28);
+},180);
+
+}
+catch(e){
+
+alert(
+"Telefon nije dozvolio zvuk. Provjeri da telefon nije utišan."
+);
+
+}
+
+}
+
+function playTone(
+frequency,
+delay=0,
+duration=0.25,
+volume=0.35
+){
+
+if(!soundEnabled || !audioContext)
+return;
+
+const oscillator =
+audioContext.createOscillator();
+
+const gain =
+audioContext.createGain();
+
+oscillator.type =
+"sine";
+
+oscillator.frequency.value =
+frequency;
+
+oscillator.connect(gain);
+gain.connect(audioContext.destination);
+
+const start =
+audioContext.currentTime + delay;
+
+gain.gain.setValueAtTime(
+0.0001,
+start
+);
+
+gain.gain.exponentialRampToValueAtTime(
+volume,
+start + 0.02
+);
+
+gain.gain.exponentialRampToValueAtTime(
+0.0001,
+start + duration
+);
+
+oscillator.start(start);
+oscillator.stop(start + duration + 0.05);
+
+}
+
+function ringNewBooking(){
+
+if(!soundEnabled)
+return;
+
+/* DING DONG */
+playTone(1046,0,0.32,0.5);
+
+setTimeout(()=>{
+playTone(784,0,0.42,0.55);
+},330);
+
+/* ponovi još jednom */
+setTimeout(()=>{
+
+playTone(1046,0,0.32,0.5);
+
+setTimeout(()=>{
+playTone(784,0,0.42,0.55);
+},330);
+
+},900);
+
+if(navigator.vibrate){
+
+navigator.vibrate([
+200,
+100,
+200
+]);
+
+}
+
+}
+
+/* =========================
+   USER
+========================= */
 
 async function user(){
 
@@ -547,7 +717,6 @@ return user;
 
 }
 
-
 async function logout(){
 
 await db.auth.signOut();
@@ -556,7 +725,6 @@ location.href =
 "login.html";
 
 }
-
 
 /* =========================
    NOTIFIKACIJE
@@ -612,6 +780,22 @@ notifications.filter(
 n => n.is_read !== true
 ).length;
 
+/* ZAZVONI AKO JE STIGLA NOVA */
+
+if(
+notificationsInitialized &&
+unread > lastUnreadCount
+){
+
+ringNewBooking();
+
+await loadBookings();
+
+}
+
+lastUnreadCount = unread;
+notificationsInitialized = true;
+
 const badge =
 $("notificationBadge");
 
@@ -630,7 +814,6 @@ badge.style.display =
 "none";
 
 }
-
 
 if(!notifications.length){
 
@@ -721,7 +904,6 @@ OBRIŠI
 
 }
 
-
 function formatNotificationDate(value){
 
 if(!value)
@@ -743,7 +925,6 @@ minute:"2-digit"
 
 }
 
-
 async function toggleNotifications(){
 
 const panel =
@@ -763,7 +944,6 @@ await markAllNotificationsRead();
 }
 
 }
-
 
 async function markAllNotificationsRead(){
 
@@ -788,10 +968,11 @@ return;
 
 }
 
+lastUnreadCount = 0;
+
 await loadNotifications();
 
 }
-
 
 async function readNotification(id){
 
@@ -819,7 +1000,6 @@ return;
 await loadNotifications();
 
 }
-
 
 async function deleteNotification(id){
 
@@ -854,7 +1034,6 @@ await loadNotifications();
 
 }
 
-
 async function deleteAllNotifications(){
 
 if(!currentSalon)
@@ -887,10 +1066,11 @@ return;
 
 }
 
+lastUnreadCount = 0;
+
 await loadNotifications();
 
 }
-
 
 /* =========================
    SALON
@@ -938,7 +1118,6 @@ data.phone || "";
 return data;
 
 }
-
 
 async function saveSalon(){
 
@@ -1018,7 +1197,6 @@ await loadNotifications();
 
 }
 
-
 /* =========================
    DOSTUPNOST
 ========================= */
@@ -1043,7 +1221,6 @@ String(m).padStart(2,"0")
 }
 
 }
-
 
 async function loadSlots(){
 
@@ -1123,7 +1300,6 @@ $("slots").appendChild(b);
 
 }
 
-
 async function toggleSlot(
 date,
 time,
@@ -1171,13 +1347,11 @@ await loadSlots();
 
 }
 
-
 $("availabilityDate")
 .addEventListener(
 "change",
 loadSlots
 );
-
 
 /* =========================
    USLUGE
@@ -1191,7 +1365,6 @@ $("servicePrice").value = "";
 $("serviceDuration").value = "";
 
 }
-
 
 function cancelServiceEdit(){
 
@@ -1209,7 +1382,6 @@ $("serviceMsg").textContent =
 "";
 
 }
-
 
 async function saveService(){
 
@@ -1297,7 +1469,6 @@ return;
 
 }
 
-
 const {
 error
 } =
@@ -1328,7 +1499,6 @@ clearServiceForm();
 await loadServices();
 
 }
-
 
 function editService(id){
 
@@ -1364,19 +1534,7 @@ $("cancelEdit").style.display =
 $("serviceMsg").textContent =
 "✏️ Izmjenjuješ: " + service.name;
 
-window.scrollTo({
-top:
-$("serviceCategory")
-.getBoundingClientRect().top
-+
-window.scrollY
--
-80,
-behavior:"smooth"
-});
-
 }
-
 
 async function deleteService(id){
 
@@ -1430,7 +1588,6 @@ $("serviceMsg").textContent =
 await loadServices();
 
 }
-
 
 async function loadServices(){
 
@@ -1516,7 +1673,6 @@ $("services").appendChild(d);
 
 }
 
-
 /* =========================
    REZERVACIJE
 ========================= */
@@ -1537,7 +1693,6 @@ time
 );
 
 }
-
 
 function bookingHtml(
 b,
@@ -1612,7 +1767,6 @@ ${status}
 `;
 
 }
-
 
 async function loadBookings(){
 
@@ -1734,7 +1888,6 @@ Još nema starih termina.
 
 }
 
-
 function showUpcoming(){
 
 $("upcomingBookings")
@@ -1751,7 +1904,6 @@ $("historyBtn")
 
 }
 
-
 function showHistory(){
 
 $("upcomingBookings")
@@ -1767,7 +1919,6 @@ $("upcomingBtn")
 .classList.remove("active");
 
 }
-
 
 /* =========================
    START
@@ -1799,6 +1950,33 @@ await loadSlots();
 await loadServices();
 await loadBookings();
 await loadNotifications();
+
+/* svakih 10 sekundi provjeri novu rezervaciju */
+
+setInterval(
+async ()=>{
+await loadNotifications();
+},
+10000
+);
+
+/* kad se vratiš u TERMINO odmah provjeri */
+
+document.addEventListener(
+"visibilitychange",
+async ()=>{
+
+if(
+document.visibilityState === "visible"
+){
+
+await loadNotifications();
+await loadBookings();
+
+}
+
+}
+);
 
 }
 
