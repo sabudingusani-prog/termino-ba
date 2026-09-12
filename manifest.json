@@ -1,10 +1,23 @@
 {
   "name": "TERMINO BA",
   "short_name": "TERMINO",
+  "id": "/termino-ba/",
   "start_url": "/termino-ba/dashboard.html",
   "scope": "/termino-ba/",
   "display": "standalone",
   "background_color": "#0b0b0b",
   "theme_color": "#0b0b0b",
-  "description": "Online rezervacije za salone"
+  "description": "Online rezervacije za salone",
+  "icons": [
+    {
+      "src": "/termino-ba/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/termino-ba/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
