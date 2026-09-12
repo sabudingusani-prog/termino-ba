@@ -231,10 +231,10 @@
 
 <script>
   const SUPABASE_URL =
-    "https://ykkopljgzdcnfbyutxzo.supabase.co";
+    "https://chpevcwwrxnsexfzovds.supabase.co";
 
   const SUPABASE_KEY =
-    "sb_publishable_g0DyVw3GMFgrjZHwSeuvkQ_6x54CKue";
+    "sb_publishable_W_zut9V5NDTHcSIeuE4J8g_4Rq_cBoG";
 
   const supabaseClient = supabase.createClient(
     SUPABASE_URL,
@@ -293,7 +293,7 @@
       salonsBox.innerHTML = `
         <div class="card">
           <b>Ne mogu otvoriti Admin.</b>
-          <p>${error.message}</p>
+          <p>${escapeHtml(error.message)}</p>
           <p>
             Provjeri da li si prijavljen
             svojim ADMIN računom.
@@ -372,7 +372,7 @@
         </div>
 
         <div class="status ${statusClass}">
-          ${statusText}
+          ${escapeHtml(statusText)}
         </div>
 
         <div class="date">
@@ -467,7 +467,7 @@
   }
 
   function escapeHtml(text) {
-    return String(text)
+    return String(text ?? "")
       .replaceAll("&", "&amp;")
       .replaceAll("<", "&lt;")
       .replaceAll(">", "&gt;")
